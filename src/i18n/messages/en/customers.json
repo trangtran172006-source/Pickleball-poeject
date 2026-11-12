@@ -1,0 +1,14 @@
+{
+  "searchTitle": "Customer search",
+  "keyword": "Keyword",
+  "keywordPlaceholder": "Enter name, phone number or email",
+  "charCount": "{count} / 1000 characters",
+  "listTitle": "Customers",
+  "colName": "Name",
+  "colAccount": "Account status",
+  "colDetail": "Details",
+  "notFound": "No customers found",
+  "detailTitle": "Customer details",
+  "backToResults": "Back to search results",
+  "info": "Customer information"
+}

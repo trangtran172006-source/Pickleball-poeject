@@ -1,0 +1,19 @@
+{
+  "title": "Cài đặt",
+  "bankTitle": "Tài khoản nhận tiền",
+  "bankSub": "Thông tin này dùng để tạo mã VietQR ở bước thanh toán đặt sân.",
+  "bank": "Ngân hàng",
+  "bin": "Mã BIN ngân hàng",
+  "holder": "Chủ tài khoản",
+  "account": "Số tài khoản",
+  "hotline": "Hotline hỗ trợ",
+  "saved": "Đã lưu cài đặt",
+  "tasksTitle": "Việc cần làm trong ca",
+  "tasksSub": "Danh sách việc hiển thị trên trang chủ của nhân viên.",
+  "taskName": "Tên công việc",
+  "taskTime": "Giờ thực hiện",
+  "taskShift": "Ca áp dụng",
+  "addTask": "Thêm việc",
+  "supportTitle": "Trung tâm hỗ trợ",
+  "supportSub": "Liên hệ câu lạc bộ khi cần hỗ trợ."
+}

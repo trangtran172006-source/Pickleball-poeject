@@ -1,0 +1,15 @@
+{
+  "title": "New notifications",
+  "count": "{count} new",
+  "empty": "No notifications yet",
+  "markRead": "Mark all as read",
+  "bookingConfirmed": "Your booking on {date} is confirmed",
+  "bookingCancelled": "Your cancellation for the booking on {date} is complete",
+  "bookingRescheduled": "Booking {code} was moved to {court} · {date} · {time}",
+  "bookingRefunded": "Refunded {amount} for booking {code}",
+  "refundPending": "Booking {code} is awaiting a refund",
+  "paymentInvalid": "The payment for booking {code} was invalid and the booking was cancelled",
+  "courtClosed": "{court} is closed and your booking {code} is affected. The club will contact you to reschedule or refund.",
+  "newBooking": "New booking {code} · {court} · {date}",
+  "affectedBookings": "{count} bookings affected by the closure of {court}"
+}

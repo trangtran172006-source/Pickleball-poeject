@@ -1,0 +1,14 @@
+{
+  "searchTitle": "Tìm kiếm thông tin khách hàng",
+  "keyword": "Từ khóa tìm kiếm",
+  "keywordPlaceholder": "Nhập họ tên, số điện thoại hoặc email",
+  "charCount": "{count} / 1000 ký tự",
+  "listTitle": "Danh sách khách hàng",
+  "colName": "Họ tên",
+  "colAccount": "Trạng thái tài khoản",
+  "colDetail": "Chi tiết",
+  "notFound": "Không tìm thấy khách hàng",
+  "detailTitle": "Chi tiết khách hàng",
+  "backToResults": "Quay về kết quả tìm kiếm",
+  "info": "Thông tin khách hàng"
+}

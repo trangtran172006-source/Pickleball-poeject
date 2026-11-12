@@ -1,0 +1,16 @@
+{
+  "title": "Quản lý nhân viên",
+  "subtitle": "Tài khoản nhân viên và trạng thái hoạt động.",
+  "listTitle": "Danh sách nhân viên",
+  "add": "Thêm nhân viên",
+  "staffCode": "Mã nhân viên",
+  "addTitle": "Thêm nhân viên",
+  "addSub": "Tạo tài khoản đăng nhập cho nhân viên mới.",
+  "initialPassword": "Mật khẩu ban đầu",
+  "lock": "Khóa",
+  "unlock": "Mở khóa",
+  "created": "Đã tạo tài khoản nhân viên",
+  "updated": "Đã cập nhật tài khoản",
+  "empty": "Chưa có nhân viên",
+  "item": "nhân viên"
+}

@@ -1,0 +1,23 @@
+{
+  "title": "Picklehead assistant",
+  "open": "Open assistant",
+  "placeholder": "Type your question...",
+  "send": "Send",
+  "welcome": "Hello! I can help with court prices, opening hours, availability and the cancellation policy.",
+  "qPrice": "Court prices",
+  "qHours": "Opening hours",
+  "qAvailability": "Availability today",
+  "qCancel": "Cancellation policy",
+  "qAddress": "Club address",
+  "qPayment": "How to pay",
+  "aHours": "The club is open from {open} to {close} every day.",
+  "aPriceIntro": "Court prices (per 30 minutes):",
+  "aPriceRow": "{group}, {band}: {price}",
+  "aAvailIntro": "Available slots on {date}:",
+  "aAvailRow": "{court}: {slots}",
+  "aAvailNone": "There are no free slots on {date}.",
+  "aCancel": "You can cancel before the start time in My bookings. Customer cancellations are not refunded. If the club closes a court, you can choose to reschedule or get a 100% refund.",
+  "aAddress": "The club is at {address}.",
+  "aPayment": "Court bookings are paid by bank transfer using a VietQR code; upload your receipt to finish.",
+  "fallback": "I don't have information on that. You can ask about prices, opening hours, availability, payment or cancellations, or call {hotline}."
+}

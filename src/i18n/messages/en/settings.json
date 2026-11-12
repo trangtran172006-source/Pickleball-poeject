@@ -1,0 +1,19 @@
+{
+  "title": "Settings",
+  "bankTitle": "Receiving bank account",
+  "bankSub": "Used to generate the VietQR code at the booking payment step.",
+  "bank": "Bank",
+  "bin": "Bank BIN",
+  "holder": "Account holder",
+  "account": "Account number",
+  "hotline": "Support hotline",
+  "saved": "Settings saved",
+  "tasksTitle": "Shift tasks",
+  "tasksSub": "Tasks shown on the staff home page.",
+  "taskName": "Task",
+  "taskTime": "Time",
+  "taskShift": "Shift",
+  "addTask": "Add task",
+  "supportTitle": "Help center",
+  "supportSub": "Contact the club when you need help."
+}

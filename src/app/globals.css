@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+/* Design tokens taken from the Figma references and the project brief. */
+@theme {
+  --font-sans: "Poppins", "Poppins Vietnamese", ui-sans-serif, system-ui, sans-serif;
+
+  --color-brand: #1a6c2e;
+  --color-brand-dark: #14561f;
+  --color-brand-soft: #eaf4ec;
+  --color-ink: #202e27;
+  --color-body: #374151;
+  --color-muted: #6b7280;
+  --color-subtle: #78847d;
+  --color-line: #e8ede8;
+  --color-page: #f5f7f5;
+  --color-danger: #b42318;
+  --color-danger-line: #ebc5c1;
+  --color-danger-soft: #fdf1f0;
+  --color-warn: #96651c;
+  --color-warn-soft: #fdf6e7;
+}
+
+html {
+  font-family: var(--font-sans);
+}
+
+body {
+  background: var(--color-page);
+  color: var(--color-ink);
+}

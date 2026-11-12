@@ -1,0 +1,15 @@
+{
+  "title": "Thông báo mới",
+  "count": "{count} tin",
+  "empty": "Chưa có thông báo",
+  "markRead": "Đánh dấu đã đọc",
+  "bookingConfirmed": "Lịch đặt sân {date} đã xác nhận",
+  "bookingCancelled": "Yêu cầu hủy sân cho lịch đặt sân {date} của bạn đã hoàn tất",
+  "bookingRescheduled": "Lịch đặt {code} đã được dời sang {court} · {date} · {time}",
+  "bookingRefunded": "Đã hoàn tiền {amount} cho lịch đặt {code}",
+  "refundPending": "Lịch đặt {code} đang chờ hoàn tiền",
+  "paymentInvalid": "Thanh toán của lịch đặt {code} không hợp lệ, lịch đặt đã bị hủy",
+  "courtClosed": "{court} đóng cửa, lịch đặt {code} của bạn bị ảnh hưởng. Sân sẽ liên hệ để dời lịch hoặc hoàn tiền.",
+  "newBooking": "Lịch đặt mới {code} · {court} · {date}",
+  "affectedBookings": "{count} lịch đặt bị ảnh hưởng do {court} đóng cửa"
+}

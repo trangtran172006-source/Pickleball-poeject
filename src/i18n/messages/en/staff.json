@@ -1,0 +1,16 @@
+{
+  "title": "Staff management",
+  "subtitle": "Staff accounts and their status.",
+  "listTitle": "Staff",
+  "add": "Add staff",
+  "staffCode": "Staff ID",
+  "addTitle": "Add staff",
+  "addSub": "Create a login for a new staff member.",
+  "initialPassword": "Initial password",
+  "lock": "Lock",
+  "unlock": "Unlock",
+  "created": "Staff account created",
+  "updated": "Account updated",
+  "empty": "No staff yet",
+  "item": "staff"
+}

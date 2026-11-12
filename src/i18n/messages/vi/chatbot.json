@@ -1,0 +1,23 @@
+{
+  "title": "Trợ lý Picklehead",
+  "open": "Mở trợ lý",
+  "placeholder": "Nhập câu hỏi của bạn...",
+  "send": "Gửi",
+  "welcome": "Xin chào! Tôi có thể giúp bạn tra cứu giá sân, giờ mở cửa, sân trống và chính sách hủy sân.",
+  "qPrice": "Bảng giá sân",
+  "qHours": "Giờ mở cửa",
+  "qAvailability": "Sân trống hôm nay",
+  "qCancel": "Chính sách hủy sân",
+  "qAddress": "Địa chỉ sân",
+  "qPayment": "Cách thanh toán",
+  "aHours": "Sân mở cửa từ {open} đến {close} hằng ngày.",
+  "aPriceIntro": "Giá thuê sân (cho mỗi 30 phút):",
+  "aPriceRow": "{group}, {band}: {price}",
+  "aAvailIntro": "Khung giờ còn trống ngày {date}:",
+  "aAvailRow": "{court}: {slots}",
+  "aAvailNone": "Ngày {date} không còn khung giờ trống.",
+  "aCancel": "Bạn có thể hủy lịch trước giờ bắt đầu trong mục Lịch đặt sân. Khách tự hủy sẽ không được hoàn tiền. Nếu sân đóng cửa, bạn được chọn dời lịch hoặc hoàn tiền 100%.",
+  "aAddress": "Sân ở {address}.",
+  "aPayment": "Đặt sân thanh toán bằng chuyển khoản ngân hàng qua mã VietQR, sau đó tải ảnh biên lai để hoàn tất.",
+  "fallback": "Tôi chưa có thông tin cho câu hỏi này. Bạn có thể hỏi về giá sân, giờ mở cửa, sân trống, cách thanh toán hoặc chính sách hủy; hoặc gọi hotline {hotline}."
+}
