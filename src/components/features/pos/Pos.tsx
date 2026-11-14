@@ -221,8 +221,8 @@ export function Pos() {
                 </div>
               )}
             </div>
-            <fieldset className="mt-5 border-t border-line pt-5 [&>legend]:float-left [&>legend]:w-full">
-              <legend className="mb-2.5 text-xs text-muted">{t("payMethod")}</legend>
+            <div className="mt-5 border-t border-line pt-5" role="radiogroup" aria-label={t("payMethod")}>
+              <p className="mb-2.5 text-xs text-muted">{t("payMethod")}</p>
               <div className="grid grid-cols-2 gap-2">
                 {(
                   [
@@ -236,7 +236,7 @@ export function Pos() {
                   </label>
                 ))}
               </div>
-            </fieldset>
+            </div>
             <div className="mt-5 flex items-center justify-between gap-3 border-t border-line pt-5">
               <span className="text-[13px] font-medium text-ink">{tc("total")}</span>
               <span className="text-2xl font-semibold text-brand" data-total>
