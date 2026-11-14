@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { CalendarPlus, Info, Plus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,14 +16,18 @@ import { useApiErrorMessage, useValidationMessage } from "@/lib/apiErrors";
 import { todayISO } from "@/lib/dates";
 import { shiftAdminApi } from "@/services/api/owner";
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const OPEN = "05:00", CLOSE = "22:00";
 const schema = z
   .object({
-    staffCode: z.string().trim().min(1, "required").max(20, "wrongFormat"),
+    staffCode: z.string().trim().min(1, "required").regex(EMAIL_RE, "emailInvalid"),
     date: z.string().min(1, "required"),
     start: z.string().min(1, "required"),
     end: z.string().min(1, "required"),
   })
-  .refine((data) => data.end > data.start, { path: ["end"], message: "endAfterStart" });
+  .refine((data) => data.end > data.start, { path: ["end"], message: "endAfterStart" })
+  .refine((data) => !data.start || data.start >= OPEN, { path: ["start"], message: "shiftHoursRange" })
+  .refine((data) => !data.end || data.end <= CLOSE, { path: ["end"], message: "shiftHoursRange" });
 type FormValues = z.infer<typeof schema>;
 
 /** UI_41 – the owner creates a shift for a staff member (UC_11.1). */
@@ -32,7 +35,6 @@ export function ShiftRegister() {
   const t = useTranslations("shifts");
   const errorText = useApiErrorMessage();
   const fieldError = useValidationMessage();
-  const router = useRouter();
   const client = useQueryClient();
   const {
     register,
@@ -63,21 +65,33 @@ export function ShiftRegister() {
             <p className="mt-0.5 text-xs text-muted">{t("registerSub")}</p>
           </div>
         </div>
-        {create.isSuccess && <Banner tone="success" className="mb-4" title={t("created")} />}
+        {create.isSuccess && (
+          <Banner tone="success" className="mb-4" title={t("created")}>
+            {create.data?.createdAccount && (
+              <div className="mt-1 text-xs">
+                <p>{t("accountCreatedHint")}</p>
+                <p className="mt-1 font-medium">{t("accountEmail")}: {create.data.createdAccount.email}</p>
+                <p className="font-medium">{t("accountPassword")}: <span className="font-mono">{create.data.createdAccount.password}</span></p>
+              </div>
+            )}
+          </Banner>
+        )}
         {create.isError && <Banner tone="error" className="mb-4" title={errorText(create.error, "errors.shiftCreateFailed")} />}
         <form onSubmit={handleSubmit((values) => create.mutate(values))} noValidate className="flex flex-col gap-4">
-          <Field label={t("staffCode")} htmlFor="staffCode" required error={create.isError ? undefined : fieldError(errors.staffCode?.message)}>
-            <Input id="staffCode" placeholder={t("staffCodePlaceholder")} invalid={!!errors.staffCode} {...register("staffCode")} />
-          </Field>
-          <Field label={t("workDate")} htmlFor="workDate" required error={fieldError(errors.date?.message)}>
-            <DatePicker id="workDate" value={date} min={todayISO()} onChange={(value) => setValue("date", value ?? "", { shouldValidate: true })} />
-          </Field>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label={t("staffCode")} htmlFor="staffCode" required error={create.isError ? undefined : fieldError(errors.staffCode?.message)}>
+              <Input id="staffCode" placeholder={t("staffCodePlaceholder")} invalid={!!errors.staffCode} {...register("staffCode")} />
+            </Field>
+            <Field label={t("workDate")} htmlFor="workDate" required error={fieldError(errors.date?.message)}>
+              <DatePicker id="workDate" value={date} min={todayISO()} onChange={(value) => setValue("date", value ?? "", { shouldValidate: true })} />
+            </Field>
+          </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label={t("start")} htmlFor="start" required error={fieldError(errors.start?.message)}>
-              <Input id="start" type="time" invalid={!!errors.start} {...register("start")} />
+              <Input id="start" type="time" min={OPEN} max={CLOSE} invalid={!!errors.start} {...register("start")} />
             </Field>
             <Field label={t("end")} htmlFor="end" required error={fieldError(errors.end?.message)}>
-              <Input id="end" type="time" invalid={!!errors.end} {...register("end")} />
+              <Input id="end" type="time" min={OPEN} max={CLOSE} invalid={!!errors.end} {...register("end")} />
             </Field>
           </div>
           <p className="flex items-center gap-2 text-[11px] text-muted">
@@ -87,9 +101,6 @@ export function ShiftRegister() {
           <div className="flex justify-end gap-2.5">
             <Button type="submit" loading={create.isPending} iconLeft={<Plus aria-hidden className="size-4" />} data-create-shift>
               {t("create")}
-            </Button>
-            <Button variant="neutral" onClick={() => router.push("/owner/shifts")}>
-              {t("listTitle")}
             </Button>
           </div>
         </form>

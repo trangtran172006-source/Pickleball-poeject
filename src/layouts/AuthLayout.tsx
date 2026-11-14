@@ -22,7 +22,7 @@ export function AuthLayout({ title, subtitle, compact = false, children }: Props
       </div>
       <main
         className={cn(
-          "w-full max-w-[654px] rounded-[20px] bg-white p-6 shadow-[0_18px_50px_rgba(16,48,26,0.18)] sm:p-10",
+          "w-full max-w-[654px] rounded-[20px] bg-white p-6 shadow-sm sm:p-10",
           !compact && "sm:min-h-[610px]",
         )}
       >

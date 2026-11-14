@@ -35,6 +35,10 @@ const codeToKey = {
   OUT_OF_STOCK: "errors.outOfStock",
   ORDER_FAILED: "errors.orderFailed",
   STAFF_NOT_FOUND: "errors.staffNotFound",
+  STAFF_EMAIL_INVALID: "errors.staffEmailInvalid",
+  EMAIL_IN_USE: "errors.emailInUse",
+  SHIFT_HOURS_RANGE: "errors.shiftHoursRange",
+  SHIFT_OVERLAP: "errors.shiftOverlap",
   SHIFT_LOCKED: "errors.shiftLocked",
   PRICE_RULE: "validation.priceRule",
 } as const;

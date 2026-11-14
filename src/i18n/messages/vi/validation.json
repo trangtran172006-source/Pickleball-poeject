@@ -21,5 +21,6 @@
   "priceInvalid": "Giá không hợp lệ",
   "priceRule": "Giá trước 16:00 phải thấp hơn giá sau 16:00",
   "endAfterStart": "Thời điểm kết thúc phải sau thời điểm bắt đầu",
-  "quantityInvalid": "Số lượng không hợp lệ"
+  "quantityInvalid": "Số lượng không hợp lệ",
+  "shiftHoursRange": "Giờ ca phải trong giờ mở cửa (05:00–22:00)."
 }

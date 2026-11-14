@@ -22,7 +22,7 @@
   "registerCard": "Shift details",
   "registerSub": "Fill in all details to register a shift.",
   "staffCode": "Staff ID",
-  "staffCodePlaceholder": "Enter staff ID",
+  "staffCodePlaceholder": "Enter staff email",
   "workDate": "Work date",
   "start": "Start time",
   "end": "End time",
@@ -52,5 +52,9 @@
   "deleted": "Registration deleted",
   "deleteShift": "Delete registration",
   "createFailed": "Could not create the shift",
-  "deleteFailed": "Could not delete the shift"
+  "deleteFailed": "Could not delete the shift",
+  "accountCreatedTitle": "Staff account created",
+  "accountCreatedHint": "Send this email and password to the staff to sign in:",
+  "accountEmail": "Email",
+  "accountPassword": "Password"
 }

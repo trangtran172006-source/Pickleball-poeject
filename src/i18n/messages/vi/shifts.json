@@ -22,7 +22,7 @@
   "registerCard": "Thông tin đăng ký ca làm",
   "registerSub": "Điền đầy đủ thông tin để đăng ký ca làm việc.",
   "staffCode": "Mã nhân viên",
-  "staffCodePlaceholder": "Nhập mã nhân viên",
+  "staffCodePlaceholder": "Nhập email nhân viên",
   "workDate": "Ngày làm việc",
   "start": "Giờ bắt đầu",
   "end": "Giờ kết thúc",
@@ -52,5 +52,9 @@
   "deleted": "Đã xóa lịch đăng ký",
   "deleteShift": "Xóa lịch đăng ký",
   "createFailed": "Tạo ca thất bại",
-  "deleteFailed": "Xóa lịch làm thất bại"
+  "deleteFailed": "Xóa lịch làm thất bại",
+  "accountCreatedTitle": "Đã tạo tài khoản nhân viên",
+  "accountCreatedHint": "Gửi email và mật khẩu này cho nhân viên để đăng nhập:",
+  "accountEmail": "Email",
+  "accountPassword": "Mật khẩu"
 }

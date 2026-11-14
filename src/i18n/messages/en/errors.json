@@ -26,5 +26,9 @@
   "staffNotFound": "Staff ID not found",
   "wrongCurrentPassword": "Current password is incorrect",
   "pageNotFound": "Page not found",
-  "backHome": "Back to home"
+  "backHome": "Back to home",
+  "staffEmailInvalid": "Staff email is not valid.",
+  "emailInUse": "This email is already used by another account.",
+  "shiftHoursRange": "Shift hours must be within opening hours (05:00–22:00).",
+  "shiftOverlap": "This staff already has an overlapping shift on this day."
 }

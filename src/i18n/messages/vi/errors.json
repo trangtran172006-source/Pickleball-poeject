@@ -26,5 +26,9 @@
   "staffNotFound": "Mã nhân viên không tồn tại",
   "wrongCurrentPassword": "Mật khẩu hiện tại không đúng",
   "pageNotFound": "Không tìm thấy trang",
-  "backHome": "Về trang chủ"
+  "backHome": "Về trang chủ",
+  "staffEmailInvalid": "Email nhân viên không hợp lệ.",
+  "emailInUse": "Email này đang dùng cho một tài khoản khác.",
+  "shiftHoursRange": "Giờ ca phải nằm trong giờ mở cửa của sân (05:00–22:00).",
+  "shiftOverlap": "Nhân viên đã có ca trùng giờ trong ngày này."
 }

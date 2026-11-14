@@ -2,6 +2,7 @@ import { z } from "zod";
 import { admin } from "@/server/lib/admin";
 import { body, fail, handler, ok, requireRole } from "@/server/lib/http";
 import { shiftRowFrom, shiftNameFor } from "@/server/lib/ownerData";
+import { OPEN, CLOSE } from "@/server/lib/bookings";
 import type { Paged, ShiftRow } from "@/shared/types";
 const SIZE = 10;
 
@@ -40,24 +41,59 @@ export async function GET(req: Request) {
   });
 }
 
+// A5: "Mã nhân viên" = email nhân viên. Chủ sân nhập email -> hệ thống cấp quyền nhân viên.
 const regSchema = z.object({ staffCode: z.string().trim().min(1), date: z.string(), start: z.string(), end: z.string() });
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+function genPassword(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
+  let out = "";
+  for (let n = 0; n < 10; n++) out += chars[Math.floor(Math.random() * chars.length)];
+  return out;
+}
 export async function POST(req: Request) {
   return handler(async () => {
     const acc = await requireRole(["owner"]);
     const i = await body(req, regSchema);
-    const { data: nv } = await admin().from("nhan_vien").select("ma_nguoi_dung,ma_nhan_vien").eq("ma_nhan_vien", i.staffCode).maybeSingle();
-    if (!nv) throw fail("STAFF_NOT_FOUND", 404);
+    const email = i.staffCode.trim().toLowerCase();
+    if (!EMAIL_RE.test(email)) throw fail("STAFF_EMAIL_INVALID", 400);
+    // A6: giờ ca phải nằm trong giờ mở/đóng cửa và hợp lệ
+    if (i.start < OPEN || i.end > CLOSE || i.end <= i.start) throw fail("SHIFT_HOURS_RANGE", 400);
+
+    // Tìm hoặc tạo tài khoản nhân viên theo email
+    let maNguoiDung: string;
+    let createdAccount: { email: string; password: string } | null = null;
+    const { data: existing } = await admin().from("nguoi_dung").select("ma_nguoi_dung,vai_tro").eq("email", email).maybeSingle();
+    if (existing) {
+      if (existing.vai_tro !== "staff") throw fail("EMAIL_IN_USE", 409); // email đang dùng cho tài khoản khác
+      maNguoiDung = existing.ma_nguoi_dung;
+      await admin().from("nhan_vien").upsert({ ma_nguoi_dung: maNguoiDung, ma_nhan_vien: email });
+    } else {
+      const password = genPassword();
+      const { data: created, error: ce } = await admin().auth.admin.createUser({ email, password, email_confirm: true });
+      if (ce || !created.user) throw fail("EMAIL_IN_USE", 409);
+      const { data: res, error: e2 } = await admin().rpc("fn_tao_nhan_vien", { p_auth: created.user.id, p_ten: email.split("@")[0], p_email: email, p_sdt: "" });
+      if (e2) { await admin().auth.admin.deleteUser(created.user.id); throw e2; }
+      maNguoiDung = (res as { ma_nguoi_dung: string }).ma_nguoi_dung;
+      createdAccount = { email, password };
+    }
+
+    // A5: không trùng ca (cùng nhân viên, cùng ngày, chồng giờ)
+    const { data: sameDay } = await admin().from("dang_ky_ca_lam")
+      .select("gio_bat_dau_ca,gio_ket_thuc_ca").eq("ma_nguoi_dung", maNguoiDung).eq("ngay_lam_viec", i.date);
+    const overlap = (sameDay ?? []).some((s) => i.start < (s.gio_ket_thuc_ca as string).slice(0, 5) && (s.gio_bat_dau_ca as string).slice(0, 5) < i.end);
+    if (overlap) throw fail("SHIFT_OVERLAP", 409);
+
     const id = ("CA" + i.date.replace(/-/g, "").slice(2) + Math.random().toString(36).slice(2, 5)).toUpperCase().slice(0, 12);
     const { error } = await admin().from("dang_ky_ca_lam").insert({
-      ma_ca_lam: id, ma_nguoi_dung: nv.ma_nguoi_dung, ma_nhan_vien: nv.ma_nhan_vien, ngay_lam_viec: i.date,
+      ma_ca_lam: id, ma_nguoi_dung: maNguoiDung, ma_nhan_vien: email, ngay_lam_viec: i.date,
       gio_bat_dau_ca: i.start, gio_ket_thuc_ca: i.end, ten_ca: shiftNameFor(i.start), nguoi_tao: acc.ma_nguoi_dung,
     });
     if (error) {
-      if ((error as { code?: string }).code === "23505") throw fail("SHIFT_LOCKED", 409);
+      if ((error as { code?: string }).code === "23505") throw fail("SHIFT_OVERLAP", 409);
       throw error;
     }
     const { data } = await admin().from("dang_ky_ca_lam").select("*").eq("ma_ca_lam", id).single();
-    const { data: u } = await admin().from("nguoi_dung").select("ho_ten").eq("ma_nguoi_dung", nv.ma_nguoi_dung).single();
-    return ok(shiftRowFrom(data!, new Date().toISOString(), u?.ho_ten ?? ""));
+    const { data: u } = await admin().from("nguoi_dung").select("ho_ten").eq("ma_nguoi_dung", maNguoiDung).single();
+    return ok({ ...shiftRowFrom(data!, new Date().toISOString(), u?.ho_ten ?? ""), createdAccount });
   });
 }

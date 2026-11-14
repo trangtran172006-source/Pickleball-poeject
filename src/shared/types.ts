@@ -249,6 +249,7 @@ export type ClosureInput = { courtId: string; reason: ClosureReason; startDate: 
 export type ClosurePreview = { affected: number };
 
 export type ShiftRegisterInput = { staffCode: string; date: string; start: string; end: string };
+export type ShiftRegisterResult = ShiftRow & { createdAccount: { email: string; password: string } | null };
 export type ShiftRow = {
   id: string;
   code: string;

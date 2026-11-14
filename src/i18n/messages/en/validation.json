@@ -21,5 +21,6 @@
   "priceInvalid": "Invalid price",
   "priceRule": "The price before 16:00 must be lower than the price after 16:00",
   "endAfterStart": "End time must be after start time",
-  "quantityInvalid": "Invalid quantity"
+  "quantityInvalid": "Invalid quantity",
+  "shiftHoursRange": "Shift hours must be within 05:00–22:00."
 }

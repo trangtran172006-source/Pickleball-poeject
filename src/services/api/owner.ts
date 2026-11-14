@@ -15,6 +15,7 @@ import type {
   ReportPeriod,
   SetPriceInput,
   ShiftRegisterInput,
+  ShiftRegisterResult,
   ShiftRow,
   StaffAccountRow,
   StaffCreateInput,
@@ -54,7 +55,7 @@ export const productAdminApi = {
 
 export type ShiftListQuery = { q?: string; from?: string | null; to?: string | null; status?: string; page?: number };
 export const shiftAdminApi = {
-  register: (input: ShiftRegisterInput) => api<ShiftRow>("/api/shifts", { method: "POST", body: input }),
+  register: (input: ShiftRegisterInput) => api<ShiftRegisterResult>("/api/shifts", { method: "POST", body: input }),
   list: (query: ShiftListQuery) => api<Paged<ShiftRow>>("/api/shifts", { query }),
   remove: (id: string) => api<null>(`/api/shifts/${id}`, { method: "DELETE" }),
 };
