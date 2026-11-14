@@ -1,7 +1,6 @@
 import { admin } from "@/server/lib/admin";
+import { authClient } from "@/server/lib/session";
 import { body, fail, handler, ok } from "@/server/lib/http";
-import { maskEmail } from "@/server/lib/codes";
-import { issueOtp } from "@/server/lib/otp";
 import { registerSchema } from "@/shared/schemas/auth";
 
 export async function POST(req: Request) {
@@ -21,7 +20,12 @@ export async function POST(req: Request) {
       p_sdt: input.phone, p_nam: year, p_gioi: input.gender || "",
     });
     if (e2) { await admin().auth.admin.deleteUser(created.user.id); throw e2; }
-    const { resendAvailableAt } = await issueOtp(email, "register");
-    return ok({ maskedEmail: maskEmail(email), resendAvailableAt });
+    // Không dùng OTP: kích hoạt ngay và đăng nhập thẳng.
+    await admin().from("nguoi_dung")
+      .update({ da_xac_thuc: true, dang_nhap_gan_nhat: new Date().toISOString() })
+      .eq("email", email);
+    const supabase = await authClient();
+    await supabase.auth.signInWithPassword({ email, password: input.password });
+    return ok({ role: "customer", redirect: "/customer" });
   });
 }

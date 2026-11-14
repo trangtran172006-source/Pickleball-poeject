@@ -13,7 +13,6 @@ import { Input } from "@/components/ui/Input";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Select } from "@/components/ui/Select";
 import { useApiErrorMessage, useValidationMessage } from "@/lib/apiErrors";
-import { authFlow } from "@/lib/authFlow";
 import { genderKey } from "@/i18n/status";
 import { authApi } from "@/services/api/auth";
 import { ApiError } from "@/services/api/client";
@@ -40,9 +39,8 @@ export function RegisterForm() {
   const onSubmit = handleSubmit(async (values) => {
     setFailure(null);
     try {
-      const challenge = await authApi.register(values);
-      authFlow.setOtp({ email: values.email.trim().toLowerCase(), purpose: "register", ...challenge });
-      router.push("/verify-otp");
+      const { redirect } = await authApi.register(values);
+      router.replace(redirect);
     } catch (error) {
       if (error instanceof ApiError) {
         for (const [name, key] of Object.entries(error.fields)) {

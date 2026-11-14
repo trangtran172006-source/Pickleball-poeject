@@ -14,7 +14,7 @@
   "aPriceIntro": "Court prices (per 30 minutes):",
   "aPriceRow": "{group}, {band}: {price}",
   "aAvailIntro": "Available slots on {date}:",
-  "aAvailRow": "{court}: {slots}",
+  "aAvailRow": "{court}: {slots} slots free",
   "aAvailNone": "There are no free slots on {date}.",
   "aCancel": "You can cancel before the start time in My bookings. Customer cancellations are not refunded. If the club closes a court, you can choose to reschedule or get a 100% refund.",
   "aAddress": "The club is at {address}.",

@@ -100,7 +100,7 @@ begin
     v_bd := (v_item->>'gio_bd')::time; v_kt := (v_item->>'gio_kt')::time;
     v_ngay_choi := v_ngay;
     if v_ngay < current_date then raise exception 'PAST_DATE' using errcode='P0001'; end if;
-    if (v_kt - v_bd) < interval '60 minutes' then raise exception 'MIN_DURATION' using errcode='P0001'; end if;
+    if (v_kt - v_bd) < interval '30 minutes' then raise exception 'MIN_DURATION' using errcode='P0001'; end if;
     if san_dong_cua(v_san, ts_hcm(v_ngay,v_bd), ts_hcm(v_ngay,v_kt)) then raise exception 'COURT_CLOSED' using errcode='P0001'; end if;
     v_tien := tinh_tien(v_san,v_ngay,v_bd,v_kt);
     v_tong := v_tong + v_tien;

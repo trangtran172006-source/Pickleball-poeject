@@ -14,7 +14,7 @@
   "aPriceIntro": "Giá thuê sân (cho mỗi 30 phút):",
   "aPriceRow": "{group}, {band}: {price}",
   "aAvailIntro": "Khung giờ còn trống ngày {date}:",
-  "aAvailRow": "{court}: {slots}",
+  "aAvailRow": "{court}: còn {slots} khung giờ trống",
   "aAvailNone": "Ngày {date} không còn khung giờ trống.",
   "aCancel": "Bạn có thể hủy lịch trước giờ bắt đầu trong mục Lịch đặt sân. Khách tự hủy sẽ không được hoàn tiền. Nếu sân đóng cửa, bạn được chọn dời lịch hoặc hoàn tiền 100%.",
   "aAddress": "Sân ở {address}.",

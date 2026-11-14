@@ -8,7 +8,7 @@ export const authApi = {
   login: (input: LoginInput) =>
     api<{ role: Role; redirect: string }>("/api/auth/login", { method: "POST", body: input }),
   logout: () => api<null>("/api/auth/logout", { method: "POST" }),
-  register: (input: RegisterInput) => api<OtpChallenge>("/api/auth/register", { method: "POST", body: input }),
+  register: (input: RegisterInput) => api<{ role: Role; redirect: string }>("/api/auth/register", { method: "POST", body: input }),
   forgot: (input: ForgotInput) => api<OtpChallenge>("/api/auth/forgot", { method: "POST", body: input }),
   verifyOtp: (input: { email: string; purpose: OtpPurpose; code: string }) =>
     api<{ resetToken?: string }>("/api/auth/otp/verify", { method: "POST", body: input }),

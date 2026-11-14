@@ -1,4 +1,4 @@
-import { CalendarSync, ClipboardList, FileBarChart, LayoutDashboard, Map, Package2, Settings, Users } from "lucide-react";
+import { CalendarSync, ClipboardList, FileBarChart, LayoutDashboard, Map, Package2, Settings } from "lucide-react";
 import type { MenuItem } from "./BackofficeLayout";
 
 export const ownerMenu: MenuItem[] = [
@@ -30,7 +30,7 @@ export const ownerMenu: MenuItem[] = [
     match: ["/owner/shifts"],
     children: [
       { key: "shiftRegister", href: "/owner/shifts/new" },
-      { key: "shiftList", href: "/owner/shifts" },
+      { key: "shiftList", href: "/owner/shifts", exact: true },
     ],
   },
   {
@@ -42,6 +42,5 @@ export const ownerMenu: MenuItem[] = [
       { key: "reportProducts", href: "/owner/reports/products" },
     ],
   },
-  { key: "staff", icon: Users, href: "/owner/staff" },
   { key: "settings", icon: Settings, href: "/owner/settings" },
 ];

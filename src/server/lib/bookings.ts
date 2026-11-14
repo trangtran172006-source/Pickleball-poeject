@@ -2,7 +2,7 @@ import { admin } from "./admin";
 import { hcmClock, hcmToday } from "./http";
 import type { BookingSummary, Pricing, PriceBand, Schedule, Slot, SlotState } from "@/shared/types";
 
-export const OPEN = "05:00", CLOSE = "22:00", SLOT_MIN = 30, MIN_MIN = 60;
+export const OPEN = "05:00", CLOSE = "22:00", SLOT_MIN = 30, MIN_MIN = 30;
 
 const hm = (t: string) => t.slice(0, 5);
 const toMin = (t: string) => +t.slice(0, 2) * 60 + +t.slice(3, 5);
