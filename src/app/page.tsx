@@ -1,6 +1,6 @@
-import { redirect } from "next/navigation";
+import { PublicHome } from "@/components/features/home/PublicHome";
 
-/** Entry point. Role-based redirect for signed-in users is added with the back end. */
+/** B5 – trang bắt đầu là trang chủ công khai cho khách vãng lai. */
 export default function Page() {
-  redirect("/login");
+  return <PublicHome />;
 }

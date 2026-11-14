@@ -59,5 +59,15 @@
   "attentionDesc": "Kiểm tra các lịch đặt đang chờ xử lý.",
   "handle": "Xử lý yêu cầu",
   "staffOnDuty": "{count} nhân viên đang trực",
-  "updatedAt": "Dữ liệu cập nhật lúc {time} hôm nay"
+  "updatedAt": "Dữ liệu cập nhật lúc {time} hôm nay",
+  "publicHeroTitle": "Đặt sân Pickleball trực tuyến, nhanh và minh bạch",
+  "publicHeroSub": "Xem bảng giá, kiểm tra sân trống và đặt sân tại {club}.",
+  "publicBookNow": "Đặt sân ngay",
+  "publicViewPrices": "Xem bảng giá",
+  "publicLogin": "Đăng nhập",
+  "publicRegister": "Đăng ký",
+  "publicPricesTitle": "Bảng giá thuê sân",
+  "publicHotline": "Hotline đặt sân",
+  "publicAddress": "Địa chỉ",
+  "publicWalkinNote": "Khách vãng lai có thể xem giá, tư vấn qua trợ lý và liên hệ hotline để đặt sân."
 }

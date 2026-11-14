@@ -59,5 +59,15 @@
   "attentionDesc": "Review bookings that need handling.",
   "handle": "Handle requests",
   "staffOnDuty": "{count} staff on duty",
-  "updatedAt": "Data updated at {time} today"
+  "updatedAt": "Data updated at {time} today",
+  "publicHeroTitle": "Book pickleball courts online — fast and transparent",
+  "publicHeroSub": "Check prices and court availability, then book at {club}.",
+  "publicBookNow": "Book now",
+  "publicViewPrices": "View prices",
+  "publicLogin": "Log in",
+  "publicRegister": "Sign up",
+  "publicPricesTitle": "Court price list",
+  "publicHotline": "Booking hotline",
+  "publicAddress": "Address",
+  "publicWalkinNote": "Walk-in guests can view prices, ask the assistant, and call the hotline to book."
 }
