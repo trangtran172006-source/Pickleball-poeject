@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { CircleHelp, LogOut, Menu, X, type LucideIcon } from "lucide-react";
+import { LogOut, Menu, X, type LucideIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Avatar, initials } from "@/components/ui/Avatar";
 import { Brand } from "@/components/ui/Brand";
@@ -95,10 +95,6 @@ export function BackofficeLayout({ role, base, menu, children }: Props) {
         );
       })}
       <div className="mt-auto flex flex-col gap-0.5 pt-8">
-        <Link href={`${base}/support`} onClick={() => setDrawer(false)} className={cn(row, "min-h-8 py-1.5", isActive({ href: `${base}/support` }) ? "font-semibold text-brand" : "text-body hover:text-brand")}>
-          <CircleHelp aria-hidden className="size-[18px]" strokeWidth={1.75} />
-          {tc("supportCenter")}
-        </Link>
         <button type="button" onClick={logout} className={cn(row, "min-h-8 py-1.5 text-left text-body hover:text-brand")}>
           <LogOut aria-hidden className="size-[18px]" strokeWidth={1.75} />
           {tc("logout")}
