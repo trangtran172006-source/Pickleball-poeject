@@ -123,6 +123,7 @@ export function summaryFromView(r: ViewRow): BookingSummary {
     holdExpiresAt: (r.hold_expires as string) ?? null,
     checkedInAt: (r.da_nhan_san_luc as string) ?? null,
     affectedReason: (r.closure_reason as BookingSummary["affectedReason"]) ?? null,
+    closureChoice: (r.lua_chon_xu_ly as BookingSummary["closureChoice"]) ?? null,
   };
 }
 

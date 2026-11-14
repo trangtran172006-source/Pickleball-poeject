@@ -85,6 +85,8 @@ export type BookingSummary = {
   holdExpiresAt?: string | null;
   checkedInAt?: string | null;
   affectedReason?: ClosureReason | null;
+  /** Lựa chọn của khách khi sân bị đóng: Dời lịch | Hoàn tiền. */
+  closureChoice?: "Dời lịch" | "Hoàn tiền" | null;
 };
 
 export type HistoryEventType = "create" | "paid" | "reschedule" | "cancel" | "refund" | "invalid";

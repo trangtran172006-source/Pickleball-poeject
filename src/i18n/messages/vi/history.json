@@ -55,5 +55,12 @@
   "roleCustomer": "Khách hàng",
   "roleStaff": "Nhân viên",
   "roleOwner": "Chủ sân",
-  "backToList": "Lịch sử đặt sân"
+  "backToList": "Lịch sử đặt sân",
+  "closureNoticeTitle": "Sân của bạn bị ảnh hưởng",
+  "closureNoticeDesc": "Lý do: {reason}. Vui lòng chọn hướng xử lý cho lịch đặt này:",
+  "chooseReschedule": "Dời lịch",
+  "chooseRefund": "Hoàn tiền",
+  "choiceSaved": "Đã ghi nhận lựa chọn của bạn",
+  "choiceRescheduleMade": "Bạn đã chọn dời lịch. Sân sẽ liên hệ để sắp xếp lịch mới.",
+  "choiceRefundMade": "Bạn đã chọn hoàn tiền. Sân sẽ xử lý và hoàn 100% số tiền."
 }

@@ -45,6 +45,7 @@ export const bookingsApi = {
   list: (filters: BookingFilters) => api<Paged<BookingSummary>>("/api/bookings", { query: filters }),
   detail: (id: string) => api<BookingDetail>(`/api/bookings/${id}`),
   cancel: (id: string) => api<BookingDetail>(`/api/bookings/${id}/cancel`, { method: "POST" }),
+  handleClosure: (id: string, choice: "Hoàn tiền" | "Dời lịch") => api<BookingDetail>(`/api/bookings/${id}/handle-closure`, { method: "POST", body: { choice } }),
 };
 
 export const customerApi = {

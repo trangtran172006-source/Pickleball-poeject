@@ -55,5 +55,12 @@
   "roleCustomer": "Customer",
   "roleStaff": "Staff",
   "roleOwner": "Owner",
-  "backToList": "Booking history"
+  "backToList": "Booking history",
+  "closureNoticeTitle": "Your booking is affected",
+  "closureNoticeDesc": "Reason: {reason}. Please choose how to handle this booking:",
+  "chooseReschedule": "Reschedule",
+  "chooseRefund": "Refund",
+  "choiceSaved": "Your choice has been saved",
+  "choiceRescheduleMade": "You chose to reschedule. The club will contact you to arrange a new time.",
+  "choiceRefundMade": "You chose a refund. The club will process a 100% refund."
 }
