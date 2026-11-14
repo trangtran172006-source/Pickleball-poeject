@@ -47,8 +47,8 @@ export function CustomerDetail({ base, id }: { base: string; id: string }) {
                   [
                     [User, t("colName"), data.fullName],
                     [Phone, tc("phone"), data.phone],
-                    [CircleUser, t("colAccount"), status],
                     [Mail, tc("email"), data.email],
+                    [CircleUser, t("colAccount"), status],
                   ] as const
                 ).map(([Icon, label, value]) => (
                   <div key={label} className="flex items-start gap-3">

@@ -7,16 +7,14 @@ export async function GET(req: Request) {
     await requireRole(["staff", "owner"]);
     const sp = new URL(req.url).searchParams;
     const q = sp.get("q")?.trim();
-    if (!q) return ok({ items: [], total: 0, page: 1, pageSize: SIZE });
     const page = Math.max(1, Number(sp.get("page") || 1));
-    const { data, count } = await admin().from("nguoi_dung")
-      .select("ma_nguoi_dung,ho_ten,so_dien_thoai,email,da_xac_thuc,anh_dai_dien", { count: "exact" })
-      .eq("vai_tro", "customer")
-      .or(`ho_ten.ilike.%${q}%,so_dien_thoai.ilike.%${q}%,email.ilike.%${q}%`)
-      .order("ho_ten").range((page - 1) * SIZE, page * SIZE - 1);
+    // v_khach_hang = tài khoản khách đã đăng ký + khách vãng lai đã đặt sân (đồng nhất nguồn dữ liệu)
+    let query = admin().from("v_khach_hang").select("id,ho_ten,sdt,email,co_tai_khoan", { count: "exact" });
+    if (q) query = query.or(`ho_ten.ilike.%${q}%,sdt.ilike.%${q}%,email.ilike.%${q}%`);
+    const { data, count } = await query.order("ho_ten").range((page - 1) * SIZE, page * SIZE - 1);
     const items: CustomerRow[] = (data ?? []).map((c) => ({
-      id: c.ma_nguoi_dung, fullName: c.ho_ten, phone: c.so_dien_thoai, email: c.email,
-      online: !!c.da_xac_thuc, avatarUrl: null,
+      id: c.id as string, fullName: c.ho_ten as string, phone: c.sdt as string,
+      email: (c.email as string) ?? "", online: !!c.co_tai_khoan, avatarUrl: null,
     }));
     const result: Paged<CustomerRow> = { items, total: count ?? 0, page, pageSize: SIZE };
     return ok(result);
