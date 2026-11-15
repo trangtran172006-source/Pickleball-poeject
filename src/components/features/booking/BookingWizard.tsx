@@ -33,7 +33,7 @@ export function BookingWizard({ mode, paths }: Props) {
     const date = params.get("date");
     if (applied.current || !stored || !date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
     applied.current = true;
-    if (stored.step === 0 && stored.date !== date) update({ date, range: null, selection: null, bandId: null });
+    if (stored.step === 0 && stored.date !== date) update({ date, ranges: [], selections: [], bandId: null });
   }, [params, stored, update]);
 
   // Leaving the finished screen starts a fresh flow next time.
@@ -43,7 +43,7 @@ export function BookingWizard({ mode, paths }: Props) {
   if (!stored) return <SkeletonRows rows={5} />;
   // Guard against inconsistent restored state.
   const state: WizardState =
-    (stored.step === 1 && !stored.selection) || (stored.step === 2 && !stored.hold) || (stored.step === 3 && !stored.done) ? { ...stored, step: 0 } : stored;
+    (stored.step === 1 && stored.selections.length === 0) || (stored.step === 2 && !stored.hold) || (stored.step === 3 && !stored.done) ? { ...stored, step: 0 } : stored;
   const titles = [t("stepDate"), t("stepInfo"), tp("title"), t("doneTitle")];
   const props = { mode, paths, state, update };
 

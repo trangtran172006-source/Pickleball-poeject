@@ -102,9 +102,9 @@ export function Pos() {
             <h2 className="text-base font-medium text-ink">{tab === "goods" ? t("goodsTitle") : t("servicesTitle")}</h2>
             <p className="mt-1.5 text-xs text-muted">{tab === "goods" ? t("goodsSub") : t("servicesSub")}</p>
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex gap-2">
-                {tab === "goods" &&
-                  (
+              {tab === "goods" && (
+                <div className="flex gap-2">
+                  {(
                     [
                       ["all", t("all")],
                       ["Đồ uống", tp("groupDrink")],
@@ -115,20 +115,89 @@ export function Pos() {
                       {label}
                     </button>
                   ))}
-              </div>
-              <div className="w-full sm:w-[210px]">
+                </div>
+              )}
+              <div className={cn("w-full", tab === "goods" && "sm:w-[210px]")}>
                 <Input value={keyword} onChange={(event) => setKeyword(event.target.value)} maxLength={100} placeholder={tab === "goods" ? t("searchGoods") : t("searchServices")} aria-label={tab === "goods" ? t("searchGoods") : t("searchServices")} left={<Search aria-hidden className="size-4" strokeWidth={1.75} />} className="h-9" />
               </div>
             </div>
 
-            <div className="mt-4 overflow-hidden rounded-lg border border-line">
-              {products.isPending ? (
+            {products.isPending ? (
+              <div className="mt-4 overflow-hidden rounded-lg border border-line">
                 <SkeletonRows rows={4} />
-              ) : products.isError ? (
+              </div>
+            ) : products.isError ? (
+              <div className="mt-4 overflow-hidden rounded-lg border border-line">
                 <ErrorState error={products.error} onRetry={() => products.refetch()} />
-              ) : visible.length === 0 ? (
+              </div>
+            ) : visible.length === 0 ? (
+              <div className="mt-4 overflow-hidden rounded-lg border border-line">
                 <EmptyState title={tp("notFound")} />
-              ) : (
+              </div>
+            ) : tab === "services" ? (
+              <div className="mt-4 flex flex-col gap-3">
+                {visible.map((item) => {
+                  const quantity = cart[item.id] ?? 0;
+                  return (
+                    <div
+                      key={item.id}
+                      data-product={item.id}
+                      className={cn(
+                        "rounded-xl border p-4 transition-colors",
+                        quantity > 0 ? "border-brand bg-white" : "border-line bg-white",
+                      )}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3.5">
+                          <span className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-page text-subtle">
+                            {item.imageUrl ? (
+                              // eslint-disable-next-line @next/next/no-img-element -- signed or public asset URL
+                              <img src={item.imageUrl} alt="" className="size-full object-contain" />
+                            ) : (
+                              <Handshake aria-hidden className="size-5" strokeWidth={1.5} />
+                            )}
+                          </span>
+                          <div className="min-w-0">
+                            <p className="text-[13px] font-semibold text-ink">{item.name}</p>
+                            <p className="mt-1 text-[11px] text-muted">{item.description ?? item.unit}</p>
+                          </div>
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={quantity > 0}
+                          onChange={() => change(item, quantity > 0 ? -quantity : 1)}
+                          aria-label={item.name}
+                          className="mt-1 size-5 shrink-0 cursor-pointer rounded accent-[#1a6c2e]"
+                        />
+                      </div>
+                      <div className="mt-4 flex items-center justify-between gap-3">
+                        <p className="text-xs">
+                          <span className={cn("font-semibold", quantity > 0 ? "text-brand" : "text-ink")}>{f.currency(item.price)}</span>{" "}
+                          <span className="text-[11px] text-muted">/ {item.unit}</span>
+                        </p>
+                        <div className="flex items-center gap-4">
+                          <div className={cn("inline-flex h-8 items-center rounded-md border", quantity > 0 ? "border-brand" : "border-line")}>
+                            <button type="button" aria-label={t("decrease")} disabled={quantity === 0} onClick={() => change(item, -1)} className="flex size-8 items-center justify-center text-body disabled:opacity-30">
+                              <Minus aria-hidden className="size-3.5" />
+                            </button>
+                            <span data-qty className={cn("w-9 text-center text-xs", quantity > 0 ? "font-semibold text-ink" : "text-subtle")}>
+                              {quantity}
+                            </span>
+                            <button type="button" aria-label={t("increase")} onClick={() => change(item, 1)} className="flex size-8 items-center justify-center text-brand">
+                              <Plus aria-hidden className="size-3.5" />
+                            </button>
+                          </div>
+                          <span className="min-w-[70px] text-right text-[13px] font-semibold text-ink">
+                            {quantity > 0 ? f.currency(quantity * item.price) : <span className="font-normal text-subtle">—</span>}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="mt-4 overflow-hidden rounded-lg border border-line">
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[520px] text-left">
                     <thead className="bg-page text-[10px] uppercase text-subtle">
@@ -142,6 +211,10 @@ export function Pos() {
                     <tbody>
                       {visible.map((item) => {
                         const quantity = cart[item.id] ?? 0;
+                        const descParts = [
+                          item.description && item.description !== item.unit ? `${item.description} · ${item.unit}` : item.unit,
+                          item.stock !== null ? t("stockLeft", { count: item.stock }) : null,
+                        ].filter(Boolean);
                         return (
                           <tr key={item.id} data-product={item.id} className="border-t border-line">
                             <td className="px-4 py-3.5">
@@ -156,9 +229,7 @@ export function Pos() {
                                 </span>
                                 <span className="min-w-0">
                                   <span className="block text-[13px] font-medium text-ink">{item.name}</span>
-                                  <span className="mt-1 block text-[11px] text-muted">
-                                    {[item.description ?? item.unit, item.stock !== null ? t("stockLeft", { count: item.stock }) : null].filter(Boolean).join(" · ")}
-                                  </span>
+                                  <span className="mt-1 block text-[11px] text-muted">{descParts.join(" · ")}</span>
                                 </span>
                               </div>
                             </td>
@@ -183,11 +254,21 @@ export function Pos() {
                     </tbody>
                   </table>
                 </div>
-              )}
-            </div>
-            <div className="mt-5 flex items-center justify-between gap-3 text-xs text-muted">
-              <span>{tab === "goods" ? t("chosenGoods", { kinds: shown.length, count: count(shown) }) : t("chosenServices", { kinds: shown.length, count: count(shown) })}</span>
-              <span className="text-[15px] font-semibold text-brand">{f.currency(money(shown))}</span>
+              </div>
+            )}
+            <div className="mt-5 flex items-end justify-between gap-3 border-t border-line pt-4 text-xs text-muted">
+              <div>
+                <span>{tab === "goods" ? t("chosenGoods", { kinds: shown.length, count: count(shown) }) : t("chosenServices", { kinds: shown.length, count: count(shown) })}</span>
+                {shown.length > 0 && (
+                  <p className="mt-1 text-[11px] text-subtle">
+                    {shown.map((line) => `${line.quantity} ${line.item.name.toLocaleLowerCase()} × ${f.currency(line.item.price)}`).join(" + ")}
+                  </p>
+                )}
+              </div>
+              <div className="text-right">
+                {tab === "services" && <p className="mb-1 text-[10px] text-subtle">{t("servicesTotal")}</p>}
+                <span className="text-[15px] font-semibold text-brand">{f.currency(money(shown))}</span>
+              </div>
             </div>
           </Card>
         </div>

@@ -31,7 +31,23 @@ export function NotificationBell({ tone = "light", bookingHref }: Props) {
     const params = { ...item.params } as Record<string, string | number>;
     if (typeof params.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(params.date)) params.date = f.date(params.date);
     if (typeof params.amount === "number") params.amount = f.currency(params.amount);
+    if (item.type === "bookingConfirmed" && !params.date) {
+      return t("bookingConfirmedCode", params as never);
+    }
     return t(item.type, params as never);
+  };
+
+  const subtitle = (item: AppNotification) => {
+    const court = typeof item.params?.court === "string" ? item.params.court : null;
+    const start = typeof item.params?.start === "string" ? item.params.start : null;
+    const end = typeof item.params?.end === "string" ? item.params.end : null;
+    if (court && start && end) {
+      return `Picklehead Booking · ${court} · ${f.timeRange(start, end)}`;
+    }
+    if (court && typeof item.params?.time === "string") {
+      return `Picklehead Booking · ${court} · ${item.params.time}`;
+    }
+    return f.dateTime(item.createdAt);
   };
 
   return (
@@ -79,7 +95,7 @@ export function NotificationBell({ tone = "light", bookingHref }: Props) {
                     <CalendarCheck aria-hidden className="mt-0.5 size-4 shrink-0 text-brand" strokeWidth={1.75} />
                     <span className="min-w-0">
                       <span className="block text-xs font-semibold text-ink">{text(item)}</span>
-                      <span className="mt-1 block text-[10px] text-subtle">{f.dateTime(item.createdAt)}</span>
+                      <span className="mt-1 block text-[10px] text-subtle">{subtitle(item)}</span>
                     </span>
                   </button>
                 </li>

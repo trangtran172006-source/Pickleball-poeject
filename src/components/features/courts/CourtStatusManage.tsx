@@ -9,11 +9,11 @@ import { Button } from "@/components/ui/Button";
 import { Card, PageTitle } from "@/components/ui/Card";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { Field } from "@/components/ui/Field";
-import { Input } from "@/components/ui/Input";
 import { ConfirmDialog } from "@/components/ui/Modal";
 import { Select } from "@/components/ui/Select";
 import { Badge } from "@/components/ui/StatusBadge";
 import { ErrorState, SkeletonRows } from "@/components/ui/States";
+import { TimeInput } from "@/components/ui/TimeInput";
 import { useToast } from "@/components/ui/Toast";
 import { useApiErrorMessage, useValidationMessage } from "@/lib/apiErrors";
 import { todayISO } from "@/lib/dates";
@@ -141,13 +141,13 @@ export function CourtStatusManage() {
               <DatePicker id="startDate" value={form.startDate} min={today} onChange={(value) => value && setForm({ ...form, startDate: value })} />
             </Field>
             <Field label={t("startTime")} htmlFor="startTime" required>
-              <Input id="startTime" type="time" value={form.startTime} onChange={(event) => setForm({ ...form, startTime: event.target.value })} />
+              <TimeInput id="startTime" value={form.startTime} onChange={(value) => setForm({ ...form, startTime: value })} />
             </Field>
             <Field label={t("endDate")} htmlFor="endDate" required>
               <DatePicker id="endDate" value={form.endDate} min={form.startDate} align="right" onChange={(value) => value && setForm({ ...form, endDate: value })} />
             </Field>
             <Field label={t("endTime")} htmlFor="endTime" required>
-              <Input id="endTime" type="time" value={form.endTime} onChange={(event) => setForm({ ...form, endTime: event.target.value })} />
+              <TimeInput id="endTime" value={form.endTime} onChange={(value) => setForm({ ...form, endTime: value })} />
             </Field>
           </div>
           <div className="mt-5 flex justify-end gap-2.5">

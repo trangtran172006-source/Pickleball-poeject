@@ -14,14 +14,14 @@ import { nowClock, todayISO, toMinutes } from "@/lib/dates";
 import { useFormat } from "@/i18n/useFormat";
 import { courtsApi } from "@/services/api/customer";
 import type { Schedule, SlotState } from "@/shared/types";
-import { BookingSummaryCard, type Selection } from "./BookingSummaryCard";
-import { CourtGrid, type Range } from "./CourtGrid";
+import { BookingSummaryCard, type SelectionItem } from "./BookingSummaryCard";
+import { CourtGrid, type Range, type SlotRange } from "./CourtGrid";
 import { DateStrip } from "./DateStrip";
 import type { StepProps } from "./types";
 import { VenueCard } from "./VenueCard";
 
 /** Selected range -> summary numbers. Returns null if any slot is no longer free. */
-function describe(schedule: Schedule, range: Range): Selection {
+function describe(schedule: Schedule, range: Range): SelectionItem | null {
   if (!range) return null;
   const court = schedule.courts.find((item) => item.id === range.courtId);
   if (!court) return null;
@@ -49,37 +49,42 @@ export function StepSchedule({ paths, state, update }: StepProps) {
     ? (date === today && data.bands.find((band) => nowClock() >= band.start && nowClock() < band.end)) || data.bands[0]
     : undefined;
   const band = data?.bands.find((item) => item.id === state.bandId) ?? defaultBand;
-  const selection = data ? describe(data, state.range) : state.selection;
+  const selections: SelectionItem[] = data ? state.ranges.map((r) => describe(data, r)).filter((x): x is SelectionItem => x !== null) : state.selections;
 
   // A slot picked earlier may have been taken by someone else since the last refresh.
   useEffect(() => {
-    if (data && state.range && !describe(data, state.range)) {
-      update({ range: null, selection: null });
+    if (!data || state.ranges.length === 0) return;
+    const valid = state.ranges.filter((r) => describe(data, r));
+    if (valid.length !== state.ranges.length) {
+      update({ ranges: valid, selections: valid.map((r) => describe(data, r)!).filter(Boolean) as SelectionItem[] });
       toast.show("error", te("slotTaken"));
     }
-  }, [data, state.range, update, toast, te]);
+  }, [data, state.ranges, update, toast, te]);
 
   const pick = (courtId: string, start: string, end: string, status: SlotState) => {
     setProblem(null);
     if (status !== "free") return toast.show("error", te("slotTaken"));
-    const current = state.range;
+    const current = state.ranges.find((r) => r.courtId === courtId);
     let next: Range = { courtId, start, end };
-    if (current && current.courtId === courtId) {
+    if (current) {
       if (start === current.end) next = { ...current, end };
       else if (end === current.start) next = { ...current, start };
       else if (start >= current.start && end <= current.end) {
-        if (start === current.start && end === current.end) next = null;
+        if (start === current.start && end === current.end) next = null; // bỏ chọn sân này
         else if (start === current.start) next = { ...current, start: end };
         else next = { ...current, end: start };
       }
     }
-    update({ range: next, selection: data && next ? describe(data, next) : null });
+    const others = state.ranges.filter((r) => r.courtId !== courtId);
+    const ranges: SlotRange[] = next ? [...others, next] : others;
+    const selections = data ? (ranges.map((r) => describe(data, r)).filter(Boolean) as SelectionItem[]) : [];
+    update({ ranges, selections });
   };
 
   const goNext = () => {
-    if (!data || !state.range || !selection) return setProblem(tv("slotRequired"));
-    if (selection.hours * 60 < data.minMinutes) return setProblem(tv("minDuration", { minutes: data.minMinutes }));
-    update({ step: 1, date, selection });
+    if (!data || selections.length === 0) return setProblem(tv("slotRequired"));
+    if (selections.some((sel) => sel.hours * 60 < data.minMinutes)) return setProblem(tv("minDuration", { minutes: data.minMinutes }));
+    update({ step: 1, date, selections });
   };
 
   return (
@@ -93,7 +98,7 @@ export function StepSchedule({ paths, state, update }: StepProps) {
           }
         />
         <Card className="p-5">
-          <DateStrip value={date} today={today} onChange={(iso) => update({ date: iso, range: null, selection: null, bandId: null })} />
+          <DateStrip value={date} today={today} onChange={(iso) => update({ date: iso, ranges: [], selections: [], bandId: null })} />
           <div className="mt-5 border-t border-line pt-5">
             <h2 className="text-[13px] font-semibold text-ink">
               {t("schedule")} · {f.dateLong(date)}
@@ -125,7 +130,7 @@ export function StepSchedule({ paths, state, update }: StepProps) {
                   ))}
                 </div>
                 <div className="mt-4">
-                  <CourtGrid schedule={data} band={band} range={state.range} onPick={pick} />
+                  <CourtGrid schedule={data} band={band} ranges={state.ranges} onPick={pick} />
                 </div>
               </>
             )}
@@ -133,7 +138,7 @@ export function StepSchedule({ paths, state, update }: StepProps) {
         </Card>
       </div>
       <div className="flex flex-col gap-4">
-        <BookingSummaryCard selection={selection} />
+        <BookingSummaryCard selections={selections} />
         {problem && (
           <p role="alert" className="text-xs text-danger">
             {problem}

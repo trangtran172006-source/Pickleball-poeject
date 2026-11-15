@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { Lock, Search, ShieldCheck, Trash2 } from "lucide-react";
+import { Info, Lock, Search, ShieldCheck, Trash2 } from "lucide-react";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { Card, PageTitle } from "@/components/ui/Card";
-import { DatePicker } from "@/components/ui/DatePicker";
+import { DateRangePicker } from "@/components/ui/DatePicker";
 import { ConfirmDialog } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Pagination } from "@/components/ui/Pagination";
@@ -77,11 +77,12 @@ export function ShiftList() {
 
       <form onSubmit={search} className="mb-5 grid items-center gap-3 md:grid-cols-[minmax(0,1.6fr)_minmax(0,1.2fr)_minmax(0,1fr)_auto]">
         <Input value={draft.q} onChange={(event) => setDraft({ ...draft, q: event.target.value })} placeholder={t("searchPlaceholder")} aria-label={t("searchPlaceholder")} left={<Search aria-hidden className="size-4" strokeWidth={1.75} />} />
-        <div className="flex items-center gap-1.5">
-          <DatePicker value={draft.from} onChange={(from) => setDraft({ ...draft, from })} placeholder={t("workDate")} clearable />
-          <span className="text-subtle">–</span>
-          <DatePicker value={draft.to} min={draft.from ?? undefined} align="right" onChange={(to) => setDraft({ ...draft, to })} placeholder={t("workDate")} clearable />
-        </div>
+        <DateRangePicker
+          from={draft.from}
+          to={draft.to}
+          onChange={(from, to) => setDraft({ ...draft, from, to })}
+          placeholder={t("workDate")}
+        />
         <Select value={draft.status} onChange={(event) => setDraft({ ...draft, status: event.target.value })} aria-label={tc("status")}>
           <option value="">{tc("allStatuses")}</option>
           <option value="Chưa hoàn thiện">{ts("shiftPending")}</option>
@@ -107,7 +108,7 @@ export function ShiftList() {
           <>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[720px] text-left">
-                <thead className="bg-page text-[10px] text-subtle">
+                <thead className="bg-page text-[10px] uppercase text-subtle">
                   <tr>
                     <th scope="col" className="px-5 py-3 font-medium">{t("colDate")}</th>
                     <th scope="col" className="px-3 py-3 font-medium">{t("colStaff")}</th>
@@ -126,10 +127,10 @@ export function ShiftList() {
                       </td>
                       <td className="px-3 py-3.5">
                         <div className="flex items-center gap-2.5">
-                          <Avatar name={item.staffName} className="size-8 text-[11px]" />
+                          <Avatar name={item.staffName} className="size-8 bg-page text-[11px] text-ink" />
                           <span>
                             <span className="block font-medium text-ink">{item.staffName}</span>
-                            <span className="mt-0.5 block text-[10px] text-subtle">{item.code}</span>
+                            <span className="mt-0.5 block text-[10px] text-subtle">{item.staffCode || item.code}</span>
                           </span>
                         </div>
                       </td>
@@ -158,7 +159,13 @@ export function ShiftList() {
             <div className="border-t border-line">
               <Pagination page={list.data.page} pageSize={list.data.pageSize} total={list.data.total} itemLabel={t("item")} onChange={(page) => setFilters({ ...filters, page })} />
             </div>
-            <p className="border-t border-line px-5 py-3 text-[11px] text-subtle">{t("footNote")}</p>
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-5 py-3 text-[11px] text-subtle">
+              <span className="inline-flex items-center gap-1.5">
+                <Trash2 aria-hidden className="size-3.5 text-danger" />
+                {t("footNote")}
+              </span>
+              <span>{tc("clubName")} · {tc("appName")}</span>
+            </div>
           </>
         )}
       </Card>
@@ -168,7 +175,7 @@ export function ShiftList() {
         onClose={() => setRemoving(null)}
         onConfirm={() => removing && remove.mutate(removing.id)}
         loading={remove.isPending}
-        confirmLabel={tc("delete")}
+        showClose
         title={t("deleteAsk")}
         icon={
           <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-danger-soft text-danger">
@@ -177,12 +184,33 @@ export function ShiftList() {
         }
       >
         {removing && (
-          <div className="rounded-lg bg-page px-4 py-3 text-xs">
-            <p className="font-semibold text-ink">{removing.staffName}</p>
-            <p className="mt-1.5 text-muted">
-              {f.date(removing.date)} · {removing.start}–{removing.end} · {removing.code}
+          <div>
+            <div className="flex flex-col gap-2 rounded-lg bg-page px-4 py-3 text-xs">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-subtle">{t("colStaff")}</span>
+                <span className="font-semibold text-ink">{removing.staffName}</span>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-subtle">{t("colDate")}</span>
+                <span className="font-medium text-ink">{f.date(removing.date)} ({f.weekday(removing.date)})</span>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-subtle">{t("shift")}</span>
+                <span className="font-medium text-ink">{removing.start} – {removing.end}</span>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-subtle">{tc("status")}</span>
+                <Badge tone="amber">{ts(shiftStatusKey[removing.status])}</Badge>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-subtle">{t("regCode")}</span>
+                <span className="font-medium text-ink">{removing.code}</span>
+              </div>
+            </div>
+            <p className="mt-3 flex items-center gap-2 text-xs text-muted">
+              <Info aria-hidden className="size-3.5 shrink-0 text-subtle" strokeWidth={1.5} />
+              {t("deleteWarn")}
             </p>
-            <p className="mt-2 text-danger">{t("deleteWarn")}</p>
           </div>
         )}
       </ConfirmDialog>

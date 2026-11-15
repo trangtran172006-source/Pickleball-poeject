@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { ArrowRight, Clock, Search } from "lucide-react";
+import { Clock, Search } from "lucide-react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
@@ -90,40 +90,56 @@ export function RescheduleList({ base }: { base: string }) {
                     <th scope="col" className="px-5 py-3 font-medium">{th("codeLabel")}</th>
                     <th scope="col" className="px-3 py-3 font-medium">{tc("customer")}</th>
                     <th scope="col" className="px-3 py-3 font-medium">{tc("court")}</th>
-                    <th scope="col" className="px-3 py-3 font-medium">{th("colPlay")}</th>
+                    <th scope="col" className="px-3 py-3 font-medium">{t("colPlayTime")}</th>
                     <th scope="col" className="px-3 py-3 font-medium">{t("colReason")}</th>
                     <th scope="col" className="px-3 py-3 font-medium">{th("colPayment")}</th>
                     <th scope="col" className="px-5 py-3 font-medium">{tc("actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {list.data.items.map((item) => (
-                    <tr key={item.id} data-affected={item.code} className="border-t border-line text-[11px]">
-                      <td className="px-5 py-4">
-                        <span className="block font-semibold text-ink">{item.code}</span>
-                        <span className="mt-1 block text-[10px] text-warn">{t("needAction")}</span>
-                      </td>
-                      <td className="px-3 py-4">
-                        <span className="block font-medium text-ink">{item.customerName}</span>
-                        <span className="mt-1 block text-[10px] text-subtle">{item.customerPhone}</span>
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-4 font-medium text-ink">{item.courtName}</td>
-                      <td className="px-3 py-4">
-                        <span className="block font-medium text-ink">{f.date(item.date)}</span>
-                        <span className="mt-1 block text-[10px] text-subtle">{f.timeRange(item.start, item.end)}</span>
-                      </td>
-                      <td className="px-3 py-4">{item.affectedReason && <Badge tone="amber">{ts(closureReasonKey[item.affectedReason])}</Badge>}</td>
-                      <td className="px-3 py-4">
-                        <PaymentStatusBadge status={item.paymentStatus} />
-                      </td>
-                      <td className="px-5 py-4">
-                        <Link href={`${base}/reschedule/${item.id}`} className="inline-flex h-8 items-center gap-1.5 whitespace-nowrap rounded-lg bg-brand px-3 text-[11px] font-semibold text-white hover:bg-brand-dark">
-                          {t("action")}
-                          <ArrowRight aria-hidden className="size-3.5" />
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
+                  {list.data.items.map((item) => {
+                    const closureSub =
+                      item.closureStart && item.closureEnd
+                        ? `${f.date(item.date).slice(0, 5)} · ${f.time(item.closureStart)} – ${f.time(item.closureEnd)}`
+                        : `${f.date(item.date).slice(0, 5)} · ${f.timeRange(item.start, item.end)}`;
+                    return (
+                      <tr key={item.id} data-affected={item.code} className="border-t border-line text-[11px]">
+                        <td className="px-5 py-4">
+                          <span className="block font-semibold text-ink">{item.code}</span>
+                          <span className="mt-1 block text-[10px] text-warn">{t("needAction")}</span>
+                        </td>
+                        <td className="px-3 py-4">
+                          <span className="block font-medium text-ink">{item.customerName}</span>
+                          <span className="mt-1 block text-[10px] text-subtle">{item.customerPhone}</span>
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-4 font-medium text-ink">{item.courtName}</td>
+                        <td className="px-3 py-4">
+                          <span className="block font-medium text-ink">{f.date(item.date)}</span>
+                          <span className="mt-1 block text-[10px] text-subtle">{f.timeRange(item.start, item.end)}</span>
+                        </td>
+                        <td className="px-3 py-4">
+                          {item.affectedReason && (
+                            <>
+                              <span className="block font-semibold text-warn">{ts(closureReasonKey[item.affectedReason])}</span>
+                              <span className="mt-1 block text-[10px] text-subtle">{closureSub}</span>
+                            </>
+                          )}
+                        </td>
+                        <td className="px-3 py-4">
+                          <PaymentStatusBadge status={item.paymentStatus} />
+                          <span className="mt-1 block text-[10px] text-subtle">{f.currency(item.amount)}</span>
+                        </td>
+                        <td className="px-5 py-4">
+                          <Link
+                            href={`${base}/reschedule/${item.id}`}
+                            className="inline-flex h-8 items-center justify-center whitespace-nowrap rounded-lg border border-line bg-white px-3.5 text-[11px] font-semibold text-brand hover:border-brand"
+                          >
+                            {t("action")}
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

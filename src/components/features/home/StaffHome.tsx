@@ -164,21 +164,31 @@ export function StaffHome({ base }: { base: string }) {
                 <p className="mt-4 text-xs text-muted">{t("noTasks")}</p>
               ) : (
                 <ul className="mt-4 flex flex-col gap-4 border-b border-line pb-5">
-                  {data!.tasks.map((task) => (
-                    <li key={task.id}>
-                      <label className="flex cursor-pointer items-start gap-3">
-                        <input type="checkbox" checked={ticks[task.id] ?? task.done}
-                          onChange={(event) => {
-                            setTicks({ ...ticks, [task.id]: event.target.checked });
-                            toggle.mutate({ id: task.id, done: event.target.checked });
-                          }} className="mt-0.5 size-[18px] shrink-0 rounded accent-[#1a6c2e]" />
-                        <span className="min-w-0">
-                          <span className={cn("block text-xs font-medium text-ink", (ticks[task.id] ?? task.done) && "text-muted line-through")}>{task.name}</span>
-                          <span className="mt-1 block text-[10px] text-subtle">{[task.time, task.note].filter(Boolean).join(" · ")}</span>
-                        </span>
-                      </label>
-                    </li>
-                  ))}
+                  {data!.tasks.map((task) => {
+                    const isDone = ticks[task.id] ?? task.done;
+                    const doneTime = task.doneAt ? f.time(task.doneAt) : task.time;
+                    return (
+                      <li key={task.id}>
+                        <label className="flex cursor-pointer items-start gap-3">
+                          <input
+                            type="checkbox"
+                            checked={isDone}
+                            onChange={(event) => {
+                              setTicks({ ...ticks, [task.id]: event.target.checked });
+                              toggle.mutate({ id: task.id, done: event.target.checked });
+                            }}
+                            className="mt-0.5 size-[18px] shrink-0 rounded accent-[#1a6c2e]"
+                          />
+                          <span className="min-w-0">
+                            <span className={cn("block text-xs font-medium text-ink", isDone && "text-muted line-through")}>{task.name}</span>
+                            <span className="mt-1 block text-[10px] text-subtle">
+                              {isDone && doneTime ? t("taskDoneAt", { time: doneTime }) : task.note || task.time || ""}
+                            </span>
+                          </span>
+                        </label>
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </Card>

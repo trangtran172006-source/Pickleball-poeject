@@ -244,7 +244,7 @@ export function StepPayment({ mode, state, update }: StepProps) {
         </div>
 
         <div className="flex flex-col gap-4">
-          <BookingSummaryCard selection={state.selection} />
+          <BookingSummaryCard selections={state.selections} />
           <Card className="px-5 py-4">
             <p className="flex items-center gap-2 text-xs font-semibold text-ink">
               <ShieldCheck aria-hidden className="size-4 text-brand" strokeWidth={1.5} />

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { FileBarChart } from "lucide-react";
+import { useState, type ReactNode } from "react";
+import { Search } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
@@ -67,7 +67,7 @@ export function ReportView({ kind }: { kind: Kind }) {
               <DatePicker id="date" value={date} onChange={(value) => value && setDate(value)} />
             </Field>
           )}
-          <Button className="px-5" onClick={run} iconLeft={<FileBarChart aria-hidden className="size-4" />}>
+          <Button className="px-5" onClick={run} iconLeft={<Search aria-hidden className="size-4" />}>
             {t("view")}
           </Button>
           <span className="ml-auto self-center text-[11px] text-subtle">{tc("unitVnd")}</span>
@@ -110,6 +110,7 @@ function CourtResult({ report }: { report: CourtReport }) {
           <thead className="bg-page text-[10px] text-subtle">
             <tr>
               <th scope="col" className="px-5 py-3 font-medium">{t("colCode")}</th>
+              <th scope="col" className="px-3 py-3 font-medium">{tc("fullName")}</th>
               <th scope="col" className="px-3 py-3 font-medium">{t("colDateTime")}</th>
               <th scope="col" className="px-3 py-3 font-medium">{tc("court")}</th>
               <th scope="col" className="px-3 py-3 font-medium">{t("colDuration")}</th>
@@ -120,20 +121,26 @@ function CourtResult({ report }: { report: CourtReport }) {
             {report.rows.map((row) => (
               <tr key={row.code} className="border-t border-line">
                 <td className="px-5 py-3.5 font-semibold text-brand">{row.code}</td>
+                <td className="px-3 py-3.5 font-medium text-ink">{row.customerName}</td>
                 <td className="whitespace-nowrap px-3 py-3.5 text-body">
                   {f.date(row.date)} · {f.timeRange(row.start, row.end)}
                 </td>
                 <td className="whitespace-nowrap px-3 py-3.5 text-ink">{row.courtName}</td>
                 <td className="whitespace-nowrap px-3 py-3.5 text-body">{tc("minutes", { count: row.minutes })}</td>
-                <td className="whitespace-nowrap px-5 py-3.5 text-right font-semibold text-ink">{f.number(row.amount)}</td>
+                <td className="whitespace-nowrap px-5 py-3.5 text-right font-semibold text-brand">{f.number(row.amount)}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
       <ResultFooter
-        periodLabel={report.periodLabel}
-        note={`${t("totalDuration")}: ${t("durationFull", { minutes: report.totalMinutes, hours, mins })}`}
+        periodText={`${t("period", { period: report.periodLabel })} · ${t("bookingsN", { count: report.rows.length })}`}
+        rows={
+          <div className="mt-3 flex items-center justify-between border-t border-line pt-3 text-xs text-body">
+            <span>{t("totalDuration")}</span>
+            <span className="font-semibold text-ink">{t("durationFull", { minutes: report.totalMinutes, hours, mins })}</span>
+          </div>
+        }
         totalLabel={t("totalCourt")}
         total={f.currency(report.total)}
         extra={report.refunds > 0 ? `${t("refundsInPeriod")}: −${f.currency(report.refunds)}` : undefined}
@@ -164,25 +171,36 @@ function ProductResult({ report }: { report: ProductReport }) {
               <th scope="col" className="px-3 py-3 font-medium">{tp("colPrice")}</th>
               <th scope="col" className="px-3 py-3 font-medium">{t("colOrderTime")}</th>
               <th scope="col" className="px-3 py-3 font-medium">{t("colQty")}</th>
-              <th scope="col" className="px-5 py-3 text-right font-medium">{tp("colLine")}</th>
+              <th scope="col" className="px-5 py-3 text-right font-medium">{t("colAmount")}</th>
             </tr>
           </thead>
           <tbody>
             {report.rows.map((row, index) => (
               <tr key={`${row.name}-${index}`} className="border-t border-line">
                 <td className="px-5 py-3.5 font-medium text-ink">{row.name}</td>
-                <td className="whitespace-nowrap px-3 py-3.5 text-body">{f.currency(row.unitPrice)}</td>
+                <td className="whitespace-nowrap px-3 py-3.5 text-body">{f.number(row.unitPrice)}</td>
                 <td className="whitespace-nowrap px-3 py-3.5 text-body">{f.dateTime(row.orderedAt)}</td>
                 <td className="px-3 py-3.5 text-ink">{row.quantity}</td>
-                <td className="whitespace-nowrap px-5 py-3.5 text-right font-semibold text-ink">{f.currency(row.amount)}</td>
+                <td className="whitespace-nowrap px-5 py-3.5 text-right font-semibold text-brand">{f.number(row.amount)}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
       <ResultFooter
-        periodLabel={report.periodLabel}
-        note={`${t("totalGoodsQty", { count: report.totalGoodsQty })} · ${t("totalServiceQty", { count: report.totalServiceQty })}`}
+        periodText={t("period", { period: report.periodLabel })}
+        rows={
+          <div className="mt-3 flex flex-col gap-2.5 border-t border-line pt-3 text-xs text-body">
+            <div className="flex items-center justify-between">
+              <span>{t("totalGoodsLabel")}</span>
+              <span className="font-semibold text-ink">{report.totalGoodsQty}</span>
+            </div>
+            <div className="flex items-center justify-between border-t border-line pt-2.5">
+              <span>{t("totalServiceLabel")}</span>
+              <span className="font-semibold text-ink">{report.totalServiceQty}</span>
+            </div>
+          </div>
+        }
         totalLabel={t("totalProducts")}
         total={f.currency(report.total)}
       />
@@ -190,17 +208,17 @@ function ProductResult({ report }: { report: ProductReport }) {
   );
 }
 
-function ResultFooter({ periodLabel, note, totalLabel, total, extra }: { periodLabel: string; note: string; totalLabel: string; total: string; extra?: string }) {
+function ResultFooter({ periodText, rows, totalLabel, total, extra }: { periodText: string; rows: ReactNode; totalLabel: string; total: string; extra?: string }) {
   const t = useTranslations("reports");
   return (
     <div className="border-t border-line bg-page/50 px-5 py-5">
       <h3 className="text-[13px] font-semibold text-ink">{t("result")}</h3>
-      <p className="mt-1 text-[11px] text-subtle">{t("period", { period: periodLabel })}</p>
-      <p className="mt-3 text-xs text-body">{note}</p>
-      {extra && <p className="mt-1 text-xs text-warn">{extra}</p>}
-      <div className="mt-4 rounded-lg bg-brand-soft px-5 py-4">
-        <p className="text-xs text-brand">{totalLabel}</p>
-        <p className="mt-1 text-2xl font-semibold text-brand" data-total>
+      <p className="mt-1 text-[11px] text-subtle">{periodText}</p>
+      {rows}
+      {extra && <p className="mt-2 text-xs text-warn">{extra}</p>}
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-brand-soft px-5 py-4">
+        <p className="text-xs font-medium text-brand">{totalLabel}</p>
+        <p className="text-xl font-semibold text-brand" data-total>
           {total}
         </p>
       </div>

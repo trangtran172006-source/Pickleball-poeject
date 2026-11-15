@@ -2,10 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowLeftRight, ArrowRight, Check, CircleCheck, Info, Lock } from "lucide-react";
+import { ArrowLeft, ArrowLeftRight, CalendarCheck, Check, CircleCheck, History, Info, Lock, LockOpen, Send } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { Banner } from "@/components/ui/Banner";
 import { Button } from "@/components/ui/Button";
 import { Card, PageTitle } from "@/components/ui/Card";
 import { DatePicker } from "@/components/ui/DatePicker";
@@ -76,18 +75,41 @@ export function ReschedulePick({ base, id }: { base: string; id: string }) {
   const stateText: Record<RescheduleOption["state"], string> = { ok: t("optOk"), price: t("optPrice"), booked: t("optBooked"), closed: t("optClosed"), past: t("optBooked") };
 
   if (result) {
-    const steps: Array<[string, string]> = [
-      [t("done1"), slot(result.from)],
-      [t("done2"), slot(result.to)],
-      [t("done3"), result.booking.customerName],
-      [t("done4"), [result.actorName, f.dateTime(result.at), result.reason].filter(Boolean).join(" · ")],
+    const sameDateSlot = result.from.date === result.to.date && result.from.start === result.to.start && result.from.end === result.to.end;
+    const steps = [
+      {
+        icon: LockOpen,
+        title: t("done1"),
+        detail: t("done1Desc", { slot: slot(result.from) }),
+      },
+      {
+        icon: Lock,
+        title: t("done2"),
+        detail: t("done2Desc", { slot: slot(result.to), code: result.booking.code }),
+      },
+      {
+        icon: Send,
+        title: t("done3"),
+        detail: t("done3Desc", { name: result.booking.customerName }),
+      },
+      {
+        icon: History,
+        title: t("done4"),
+        detail: t("done4Desc", { actor: result.actorName, at: f.dateTime(result.at), reason: result.reason || "-" }),
+      },
     ];
     return (
       <div data-reschedule-done>
         <PageTitle title={t("title")} subtitle={t("doneSub")} />
-        <Banner tone="success" title={t("success")} className="mb-5">
-          {t("successDesc", { code: result.booking.code })}
-        </Banner>
+        <div role="status" className="mb-5 flex items-center gap-3.5 rounded-lg border border-brand bg-brand-soft px-5 py-4 text-brand">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand text-white">
+            <Check aria-hidden className="size-5" strokeWidth={2.5} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-base font-medium leading-tight text-ink">{t("success")}</p>
+            <p className="mt-1 text-xs text-brand">{t("successDesc", { code: result.booking.code })}</p>
+          </div>
+        </div>
         <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,330px)_minmax(0,1fr)]">
           <Card className="p-5 sm:p-6">
             <div className="flex items-center justify-between gap-3">
@@ -102,14 +124,14 @@ export function ReschedulePick({ base, id }: { base: string; id: string }) {
             <dl className="mt-5 flex flex-col gap-3.5 border-t border-line pt-5 text-xs">
               {(
                 [
-                  [tc("court"), result.to.courtName],
+                  [t("newCourt"), result.to.courtName],
                   [tb("playDate"), f.date(result.to.date)],
-                  [tb("slot"), f.timeRange(result.to.start, result.to.end)],
-                  [t("duration"), tc("hours", { count: result.booking.hours })],
+                  [tb("slot"), `${f.timeRange(result.to.start, result.to.end)} · ${tc("hours", { count: result.booking.hours })}`],
+                  [t("newPrice"), t("perHour", { amount: f.currency(result.pricePerHour) })],
                   [t("totalAmount"), f.currency(result.booking.amount)],
                 ] as const
               ).map(([label, value]) => (
-                <div key={label} className="flex justify-between gap-3">
+                <div key={label} className="grid grid-cols-[110px_1fr] gap-2">
                   <dt className="text-subtle">{label}</dt>
                   <dd className="font-medium text-ink">{value}</dd>
                 </div>
@@ -123,27 +145,40 @@ export function ReschedulePick({ base, id }: { base: string; id: string }) {
           </Card>
           <Card className="p-5 sm:p-6">
             <h2 className="text-base font-medium text-ink">{t("stepsDone")}</h2>
-            <ol className="mt-4 flex flex-col gap-4">
-              {steps.map(([title, detail]) => (
-                <li key={title} className="flex items-start gap-3">
-                  <CircleCheck aria-hidden className="mt-0.5 size-[18px] shrink-0 text-brand" strokeWidth={1.75} />
-                  <div className="min-w-0">
-                    <p className="text-[13px] font-semibold text-ink">{title}</p>
-                    <p className="mt-1 text-[11px] text-muted">{detail}</p>
+            <ol className="mt-4 flex flex-col divide-y divide-line">
+              {steps.map(({ icon: StepIcon, title, detail }) => (
+                <li key={title} className="flex items-start justify-between gap-3 py-3.5 first:pt-0 last:pb-0">
+                  <div className="flex items-start gap-3">
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand">
+                      <StepIcon aria-hidden className="size-4" strokeWidth={1.75} />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-semibold text-ink">{title}</p>
+                      <p className="mt-1 text-[11px] text-muted">{detail}</p>
+                    </div>
                   </div>
+                  <Check aria-hidden className="mt-1 size-4 shrink-0 text-brand" strokeWidth={2} />
                 </li>
               ))}
             </ol>
-            <p className="mt-5 flex items-center gap-2.5 rounded-lg bg-brand-soft px-4 py-3 text-xs text-brand">
-              <ArrowLeftRight aria-hidden className="size-4 shrink-0" strokeWidth={1.75} />
-              {result.from.courtName} → {result.to.courtName} · {f.date(result.to.date)} · {f.timeRange(result.to.start, result.to.end)} · {t("perHour", { amount: f.currency(result.pricePerHour) })}
+            <p className="mt-5 flex items-center gap-2.5 rounded-lg bg-page px-4 py-3 text-xs text-body">
+              <ArrowLeftRight aria-hidden className="size-4 shrink-0 text-brand" strokeWidth={1.75} />
+              <span>
+                {t(sameDateSlot ? "summarySameSlot" : "summaryChangedSlot", {
+                  fromCourt: result.from.courtName,
+                  toCourt: result.to.courtName,
+                  date: f.date(result.to.date),
+                  slot: f.timeRange(result.to.start, result.to.end),
+                  price: f.currency(result.pricePerHour),
+                })}
+              </span>
             </p>
           </Card>
         </div>
         <div className="mt-5 flex justify-end">
           <Link href={`${base}/reschedule`} className="inline-flex h-[46px] items-center gap-2 rounded-lg bg-brand px-6 text-[13px] font-semibold text-white hover:bg-brand-dark">
+            <ArrowLeft aria-hidden className="size-4" />
             {t("backToReschedule")}
-            <ArrowRight aria-hidden className="size-4" />
           </Link>
         </div>
       </div>
@@ -242,35 +277,47 @@ export function ReschedulePick({ base, id }: { base: string; id: string }) {
               {data.options.length === 0 ? (
                 <EmptyState title={errorText(new ApiError("SLOT_INVALID", 400))} />
               ) : (
-                <div role="radiogroup" aria-label={t("pickTitle")} className={cn("mt-3 grid max-h-[420px] gap-3 overflow-y-auto pr-1 sm:grid-cols-2 xl:grid-cols-3", options.isFetching && "opacity-60")}>
-                  {data.options.map((option) => {
-                    const ok = option.state === "ok";
-                    const active = ok && option.start === picked;
-                    return (
-                      <button
-                        key={option.start}
-                        type="button"
-                        role="radio"
-                        aria-checked={active}
-                        disabled={!ok}
-                        data-option={option.start}
-                        data-state={option.state}
-                        onClick={() => setPicked(option.start)}
-                        className={cn(
-                          "relative min-h-[92px] rounded-lg border p-3 text-left",
-                          active ? "border-2 border-brand bg-brand-soft" : ok ? "border-line bg-white hover:border-brand" : "cursor-not-allowed border-line bg-page text-subtle",
-                        )}
-                      >
-                        <span className="absolute right-3 top-3 text-brand">
-                          {active ? <CircleCheck aria-hidden className="size-4" /> : ok ? <span className="block size-3.5 rounded-full border-[1.5px] border-brand" /> : <Lock aria-hidden className="size-3.5 text-subtle" />}
-                        </span>
-                        <span className={cn("block text-[13px] font-medium", ok && "text-ink")}>{f.timeRange(option.start, option.end)}</span>
-                        <span className="mt-1.5 block text-[10px]">{t("perHour", { amount: f.currency(option.pricePerHour) })}</span>
-                        <span className={cn("mt-2 block text-[10px]", ok && "text-brand")}>{active ? t("optSelected") : stateText[option.state]}</span>
-                      </button>
-                    );
-                  })}
-                </div>
+                <>
+                  <div role="radiogroup" aria-label={t("pickTitle")} className={cn("mt-3 grid max-h-[420px] gap-3 overflow-y-auto pr-1 sm:grid-cols-2 xl:grid-cols-3", options.isFetching && "opacity-60")}>
+                    {data.options.map((option) => {
+                      const ok = option.state === "ok";
+                      const active = ok && option.start === picked;
+                      return (
+                        <button
+                          key={option.start}
+                          type="button"
+                          role="radio"
+                          aria-checked={active}
+                          disabled={!ok}
+                          data-option={option.start}
+                          data-state={option.state}
+                          onClick={() => setPicked(option.start)}
+                          className={cn(
+                            "relative min-h-[92px] rounded-lg border p-3 text-left",
+                            active ? "border-2 border-brand bg-brand-soft" : ok ? "border-line bg-white hover:border-brand" : "cursor-not-allowed border-line bg-page text-subtle",
+                          )}
+                        >
+                          <span className="absolute right-3 top-3 text-brand">
+                            {active ? <CircleCheck aria-hidden className="size-4" /> : ok ? <span className="block size-3.5 rounded-full border-[1.5px] border-brand" /> : <Lock aria-hidden className="size-3.5 text-subtle" />}
+                          </span>
+                          <span className={cn("block text-[13px] font-medium", ok && "text-ink")}>{f.timeRange(option.start, option.end)}</span>
+                          <span className="mt-1.5 block text-[10px]">{t("perHour", { amount: f.currency(option.pricePerHour) })}</span>
+                          <span className={cn("mt-2 block text-[10px]", ok && "text-brand")}>{active ? t("optSelected") : stateText[option.state]}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="mt-4 flex flex-wrap items-center gap-4 text-[11px] text-muted">
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className="size-2.5 rounded-full bg-brand" />
+                      {t("legendOk")}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className="size-2.5 rounded-full bg-line" />
+                      {t("legendOther")}
+                    </span>
+                  </div>
+                </>
               )}
               {choice && (
                 <div className="mt-4 rounded-lg bg-brand-soft px-4 py-3.5 text-brand" data-choice>
@@ -302,6 +349,7 @@ export function ReschedulePick({ base, id }: { base: string; id: string }) {
               title={t("confirmTitle")}
               subtitle={t("confirmSub")}
               widthClass="max-w-[520px]"
+              footerBetween
               icon={
                 <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand">
                   <ArrowLeftRight aria-hidden className="size-[18px]" strokeWidth={1.75} />
@@ -341,12 +389,21 @@ export function ReschedulePick({ base, id }: { base: string; id: string }) {
                 <CircleCheck aria-hidden className="size-4" strokeWidth={1.75} />
                 {t("sameKeep", { status: paid })}
               </p>
-              <div className="mt-3 rounded-lg bg-warn-soft px-4 py-3 text-[11px] text-warn">
-                <p className="font-semibold">{t("afterTitle")}</p>
-                <ul className="mt-1.5 list-disc space-y-1 pl-4">
-                  <li>{t("after1")}</li>
-                  <li>{t("after2")}</li>
-                  <li>{t("after3")}</li>
+              <div className="mt-3 rounded-lg bg-page px-4 py-3 text-[11px] text-body">
+                <p className="font-semibold text-ink">{t("afterTitle")}</p>
+                <ul className="mt-2 space-y-2">
+                  <li className="flex items-start gap-2">
+                    <CalendarCheck aria-hidden className="mt-0.5 size-3.5 shrink-0 text-brand" strokeWidth={1.75} />
+                    <span>{t("after1")}</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <LockOpen aria-hidden className="mt-0.5 size-3.5 shrink-0 text-brand" strokeWidth={1.75} />
+                    <span>{t("after2")}</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Send aria-hidden className="mt-0.5 size-3.5 shrink-0 text-brand" strokeWidth={1.75} />
+                    <span>{t("after3")}</span>
+                  </li>
                 </ul>
               </div>
             </ConfirmDialog>

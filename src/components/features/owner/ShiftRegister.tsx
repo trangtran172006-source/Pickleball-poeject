@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarPlus, Info, Plus } from "lucide-react";
+import { CalendarPlus, Info, Plus, Users } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -12,12 +12,12 @@ import { Card, PageTitle } from "@/components/ui/Card";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { Field } from "@/components/ui/Field";
 import { Input } from "@/components/ui/Input";
+import { TimeInput } from "@/components/ui/TimeInput";
 import { useApiErrorMessage, useValidationMessage } from "@/lib/apiErrors";
 import { todayISO } from "@/lib/dates";
 import { shiftAdminApi } from "@/services/api/owner";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const OPEN = "05:00", CLOSE = "22:00";
 const schema = z
   .object({
     staffCode: z.string().trim().min(1, "required").regex(EMAIL_RE, "emailInvalid"),
@@ -25,9 +25,7 @@ const schema = z
     start: z.string().min(1, "required"),
     end: z.string().min(1, "required"),
   })
-  .refine((data) => data.end > data.start, { path: ["end"], message: "endAfterStart" })
-  .refine((data) => !data.start || data.start >= OPEN, { path: ["start"], message: "shiftHoursRange" })
-  .refine((data) => !data.end || data.end <= CLOSE, { path: ["end"], message: "shiftHoursRange" });
+  .refine((data) => data.end > data.start, { path: ["end"], message: "endAfterStart" });
 type FormValues = z.infer<typeof schema>;
 
 /** UI_41 – the owner creates a shift for a staff member (UC_11.1). */
@@ -43,21 +41,23 @@ export function ShiftRegister() {
     setValue,
     watch,
     formState: { errors },
-  } = useForm<FormValues>({ resolver: zodResolver(schema), defaultValues: { staffCode: "", date: todayISO(), start: "", end: "" } });
+  } = useForm<FormValues>({ resolver: zodResolver(schema), defaultValues: { staffCode: "", date: todayISO(), start: "05:00", end: "13:30" } });
   const date = watch("date");
+  const start = watch("start");
+  const end = watch("end");
 
   const create = useMutation({
     mutationFn: (values: FormValues) => shiftAdminApi.register(values),
     onSuccess: () => {
       void client.invalidateQueries({ queryKey: ["shifts-admin"] });
-      reset({ staffCode: "", date: todayISO(), start: "", end: "" });
+      reset({ staffCode: "", date: todayISO(), start: "05:00", end: "13:30" });
     },
   });
 
   return (
     <div>
       <PageTitle title={t("registerTitle")} />
-      <Card className="max-w-2xl p-5 sm:p-6">
+      <Card className="p-5 sm:p-6">
         <div className="mb-4 flex items-center gap-2.5">
           <CalendarPlus aria-hidden className="size-5 text-brand" strokeWidth={1.5} />
           <div>
@@ -80,7 +80,13 @@ export function ShiftRegister() {
         <form onSubmit={handleSubmit((values) => create.mutate(values))} noValidate className="flex flex-col gap-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label={t("staffCode")} htmlFor="staffCode" required error={create.isError ? undefined : fieldError(errors.staffCode?.message)}>
-              <Input id="staffCode" placeholder={t("staffCodePlaceholder")} invalid={!!errors.staffCode} {...register("staffCode")} />
+              <Input
+                id="staffCode"
+                placeholder={t("staffCodePlaceholder")}
+                invalid={!!errors.staffCode}
+                right={<Users aria-hidden className="size-4 text-body" strokeWidth={1.75} />}
+                {...register("staffCode")}
+              />
             </Field>
             <Field label={t("workDate")} htmlFor="workDate" required error={fieldError(errors.date?.message)}>
               <DatePicker id="workDate" value={date} min={todayISO()} onChange={(value) => setValue("date", value ?? "", { shouldValidate: true })} />
@@ -88,10 +94,10 @@ export function ShiftRegister() {
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label={t("start")} htmlFor="start" required error={fieldError(errors.start?.message)}>
-              <Input id="start" type="time" min={OPEN} max={CLOSE} invalid={!!errors.start} {...register("start")} />
+              <TimeInput id="start" value={start} invalid={!!errors.start} onChange={(val) => setValue("start", val, { shouldValidate: true })} />
             </Field>
             <Field label={t("end")} htmlFor="end" required error={fieldError(errors.end?.message)}>
-              <Input id="end" type="time" min={OPEN} max={CLOSE} invalid={!!errors.end} {...register("end")} />
+              <TimeInput id="end" value={end} invalid={!!errors.end} onChange={(val) => setValue("end", val, { shouldValidate: true })} />
             </Field>
           </div>
           <p className="flex items-center gap-2 text-[11px] text-muted">

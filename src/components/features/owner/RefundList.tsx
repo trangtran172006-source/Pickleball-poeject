@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, RotateCcw, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/Input";
 import { Pagination } from "@/components/ui/Pagination";
 import { Select } from "@/components/ui/Select";
 import { EmptyState, ErrorState, SkeletonRows } from "@/components/ui/States";
-import { PaymentStatusBadge } from "@/components/ui/StatusBadge";
+import { BookingStatusBadge, PaymentStatusBadge } from "@/components/ui/StatusBadge";
 import { useFormat } from "@/i18n/useFormat";
 import { refundApi, type RefundListQuery } from "@/services/api/owner";
 
@@ -49,10 +49,7 @@ export function RefundList() {
 
       <Card className="overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-4">
-          <div className="flex items-center gap-2.5">
-            <RotateCcw aria-hidden className="size-4 text-brand" strokeWidth={1.75} />
-            <h2 className="text-[15px] font-medium text-ink">{t("tableTitle")}</h2>
-          </div>
+          <h2 className="text-[15px] font-medium text-ink">{t("tableTitle")}</h2>
           {list.data && <span className="text-[11px] text-subtle">{t("count", { count: list.data.total })}</span>}
         </div>
         {list.isPending ? (
@@ -64,14 +61,16 @@ export function RefundList() {
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[760px] text-left">
+              <table className="w-full min-w-[820px] text-left">
                 <thead className="bg-page text-[10px] text-subtle">
                   <tr>
                     <th scope="col" className="px-5 py-3 font-medium">{t("colBooking")}</th>
                     <th scope="col" className="px-3 py-3 font-medium">{t("colCustomer")}</th>
+                    <th scope="col" className="px-3 py-3 font-medium">{tc("court")}</th>
                     <th scope="col" className="px-3 py-3 font-medium">{t("colSchedule")}</th>
-                    <th scope="col" className="px-3 py-3 font-medium text-right">{t("colAmount")}</th>
+                    <th scope="col" className="px-3 py-3 font-medium">{t("colBookingStatus")}</th>
                     <th scope="col" className="px-3 py-3 font-medium">{t("colPayment")}</th>
+                    <th scope="col" className="px-3 py-3 font-medium text-right">{t("colAmount")}</th>
                     <th scope="col" className="px-5 py-3 font-medium text-right">{tc("actions")}</th>
                   </tr>
                 </thead>
@@ -79,23 +78,33 @@ export function RefundList() {
                   {list.data.items.map((item) => (
                     <tr key={item.id} data-booking={item.code} className="border-t border-line text-xs">
                       <td className="px-5 py-3.5">
-                        <span className="block font-medium text-brand">{item.code}</span>
+                        <span className="block font-semibold text-ink">{item.code}</span>
                         <span className="mt-1 block text-[10px] text-subtle">{f.dateTime(item.createdAt)}</span>
                       </td>
                       <td className="px-3 py-3.5">
                         <span className="block font-medium text-ink">{item.customerName}</span>
                         <span className="mt-0.5 block text-[10px] text-subtle">{item.customerPhone}</span>
                       </td>
-                      <td className="px-3 py-3.5">
-                        <span className="block text-body">{item.courtName}</span>
-                        <span className="mt-0.5 block text-[10px] text-subtle">{f.date(item.date)} · {item.start}–{item.end}</span>
+                      <td className="whitespace-nowrap px-3 py-3.5 font-medium text-ink">{item.courtName}</td>
+                      <td className="whitespace-nowrap px-3 py-3.5">
+                        <span className="block font-medium text-ink">{f.date(item.date)}</span>
+                        <span className="mt-0.5 block text-[10px] text-subtle">{f.timeRange(item.start, item.end)}</span>
                       </td>
-                      <td className="px-3 py-3.5 text-right font-semibold text-ink">{f.currency(item.amount)}</td>
-                      <td className="px-3 py-3.5"><PaymentStatusBadge status={item.refundStatus} /></td>
+                      <td className="px-3 py-3.5">
+                        <BookingStatusBadge status={item.status} />
+                      </td>
+                      <td className="px-3 py-3.5">
+                        <PaymentStatusBadge status={item.refundStatus} />
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-3.5 text-right font-semibold text-ink">{f.currency(item.amount)}</td>
                       <td className="px-5 py-3.5 text-right">
-                        <button type="button" onClick={() => router.push(`/owner/refunds/${item.id}`)} data-open-booking className="inline-flex items-center gap-1 text-[11px] font-semibold text-brand hover:underline">
+                        <button
+                          type="button"
+                          onClick={() => router.push(`/owner/refunds/${item.id}`)}
+                          data-open-booking
+                          className="inline-flex h-8 items-center justify-center rounded-lg border border-line bg-white px-3.5 text-xs font-semibold text-brand hover:border-brand"
+                        >
                           {t("viewBooking")}
-                          <ArrowRight aria-hidden className="size-3.5" />
                         </button>
                       </td>
                     </tr>

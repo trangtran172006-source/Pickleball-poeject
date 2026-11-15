@@ -43,11 +43,14 @@ export function StepDone({ paths, state }: StepProps) {
       <div className="flex min-w-0 flex-col gap-5">
         <VenueCard
           action={
-            settings.data?.mapUrl ? (
-              <a href={settings.data.mapUrl} target="_blank" rel="noopener noreferrer" className="shrink-0 text-xs font-medium text-brand hover:underline">
-                {t("viewMap")}
-              </a>
-            ) : undefined
+            <a
+              href={settings.data?.mapUrl || "https://maps.google.com/?q=84+Che+Lan+Vien,+Ngu+Hanh+Son,+Da+Nang"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 text-xs font-medium text-brand hover:underline"
+            >
+              {t("viewMap")}
+            </a>
           }
         />
         <Card className="px-5 py-8 text-center">
@@ -110,7 +113,7 @@ export function StepDone({ paths, state }: StepProps) {
         <p className="flex items-start gap-2.5 rounded-lg bg-brand-soft px-4 py-3 text-xs text-brand">
           <Info aria-hidden className="mt-px size-4 shrink-0" strokeWidth={1.75} />
           <span>
-            {t("confirmNotice")} {t("arriveNotice")} <span className="opacity-80">{tp("byProof")}</span>
+            {done.booker.email ? t("doneSentNotice", { email: done.booker.email }) : t("doneSavedNotice")} {t("arriveNotice")}
           </span>
         </p>
         <div className="flex flex-wrap justify-between gap-3">
@@ -125,7 +128,7 @@ export function StepDone({ paths, state }: StepProps) {
         </div>
       </div>
       <BookingSummaryCard
-        selection={{ courtName: done.courtName, date: done.date, start: done.start, end: done.end, hours: done.hours, total: done.amount }}
+        selections={[{ courtName: done.courtName, date: done.date, start: done.start, end: done.end, hours: done.hours, total: done.amount }]}
         footer={
           <Badge tone="green" className="mt-4 rounded-md px-2.5 py-1.5">
             {t("paidBadge", { amount: f.currency(done.paid) })}

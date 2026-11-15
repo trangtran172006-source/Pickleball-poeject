@@ -69,7 +69,9 @@ export function StepInfo({ mode, state, update }: StepProps) {
   const fieldError = useValidationMessage();
   const [confirming, setConfirming] = useState<BookerForm | null>(null);
   const [failure, setFailure] = useState<unknown>(null);
-  const selection = state.selection;
+  const selections = state.selections;
+  const first = selections[0];
+  const grandTotal = selections.reduce((sum, sel) => sum + sel.total, 0);
   const prefill = mode === "customer" && !state.form && me.data;
 
   const {
@@ -91,10 +93,8 @@ export function StepInfo({ mode, state, update }: StepProps) {
   const hold = useMutation({
     mutationFn: (form: BookerForm) =>
       bookingsApi.hold({
-        courtId: state.range!.courtId,
         date: state.date!,
-        start: state.range!.start,
-        end: state.range!.end,
+        items: state.ranges.map((r) => ({ courtId: r.courtId, start: r.start, end: r.end })),
         fullName: form.fullName.trim(),
         phone: form.phone.trim(),
         email: form.email.trim(),
@@ -109,7 +109,7 @@ export function StepInfo({ mode, state, update }: StepProps) {
       if (error instanceof ApiError && ["SLOT_TAKEN", "COURT_CLOSED", "PAST_DATE", "SLOT_INVALID"].includes(error.code)) {
         toast.show("error", errorText(error));
         void client.invalidateQueries({ queryKey: ["schedule"] });
-        update({ step: 0, range: null, selection: null, form: getValues() });
+        update({ step: 0, ranges: [], selections: [], form: getValues() });
       } else {
         setFailure(error);
       }
@@ -123,7 +123,7 @@ export function StepInfo({ mode, state, update }: StepProps) {
   });
   const missingBasics = submitCount > 0 && (errors.fullName?.message === "required" || errors.phone?.message === "required");
 
-  if (!selection || !state.range) return null;
+  if (selections.length === 0 || !first) return null;
   return (
     <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_310px]">
       <form onSubmit={onSubmit} noValidate className="flex min-w-0 flex-col gap-5">
@@ -167,23 +167,18 @@ export function StepInfo({ mode, state, update }: StepProps) {
 
         <Card className="p-5 sm:p-6">
           <h2 className="text-base font-medium text-ink">{t("review")}</h2>
-          <div className="mt-4 flex items-center justify-between gap-3">
-            <span className="flex items-center gap-2.5 text-[13px] font-medium text-ink">
-              <CalendarDays aria-hidden className="size-4 text-brand" strokeWidth={1.5} />
-              {selection.courtName} · {tc("standardCourt")}
-            </span>
-            <Badge tone="green">{t("playHours", { count: selection.hours })}</Badge>
+          <p className="mt-2 text-xs text-muted">{f.dateLong(first.date)}</p>
+          <div className="mt-4 flex flex-col gap-2.5">
+            {selections.map((sel, index) => (
+              <div key={`${sel.courtName}-${index}`} className="flex items-center justify-between gap-3 rounded-lg bg-page px-3.5 py-2.5">
+                <span className="flex items-center gap-2.5 text-[13px] font-medium text-ink">
+                  <CalendarDays aria-hidden className="size-4 text-brand" strokeWidth={1.5} />
+                  {sel.courtName} · {f.timeRange(sel.start, sel.end)}
+                </span>
+                <Badge tone="green">{t("playHours", { count: sel.hours })}</Badge>
+              </div>
+            ))}
           </div>
-          <dl className="mt-4 flex flex-col gap-3.5 text-xs">
-            <div className="flex justify-between gap-3">
-              <dt className="text-subtle">{t("playDate")}</dt>
-              <dd className="font-medium text-ink">{f.dateLong(selection.date)}</dd>
-            </div>
-            <div className="flex justify-between gap-3">
-              <dt className="text-subtle">{t("slot")}</dt>
-              <dd className="font-medium text-ink">{f.timeRange(selection.start, selection.end)}</dd>
-            </div>
-          </dl>
           <label className="mt-5 flex cursor-pointer items-start gap-2.5 text-xs text-body">
             <input type="checkbox" className="mt-0.5 size-4 shrink-0 accent-[#1a6c2e]" aria-invalid={!!errors.agreed} {...register("agreed")} />
             <span>{t("terms")}</span>
@@ -211,7 +206,7 @@ export function StepInfo({ mode, state, update }: StepProps) {
       </form>
 
       <div className="flex flex-col gap-4">
-        <BookingSummaryCard selection={selection} />
+        <BookingSummaryCard selections={selections} />
         <SupportCard />
       </div>
 
@@ -230,27 +225,24 @@ export function StepInfo({ mode, state, update }: StepProps) {
         <div className="rounded-lg border border-line bg-page p-4 text-xs">
           <p className="text-[13px] font-semibold text-ink">{tc("appName")}</p>
           <dl className="mt-3 flex flex-col gap-2.5">
-            {(
-              [
-                [t("playDate"), f.dateLong(selection.date)],
-                [tc("standardCourt"), selection.courtName],
-                [t("slot"), f.timeRange(selection.start, selection.end)],
-                [t("totalHours"), tc("hours", { count: selection.hours })],
-              ] as const
-            ).map(([label, value]) => (
-              <div key={label} className="flex justify-between gap-3">
-                <dt className="text-subtle">{label}</dt>
-                <dd className="font-medium text-ink">{value}</dd>
+            <div className="flex justify-between gap-3">
+              <dt className="text-subtle">{t("playDate")}</dt>
+              <dd className="font-medium text-ink">{f.dateLong(first.date)}</dd>
+            </div>
+            {selections.map((sel, index) => (
+              <div key={`${sel.courtName}-${index}`} className="flex justify-between gap-3">
+                <dt className="text-subtle">{sel.courtName}</dt>
+                <dd className="font-medium text-ink">{f.timeRange(sel.start, sel.end)} · {tc("hours", { count: sel.hours })}</dd>
               </div>
             ))}
             <div className="flex justify-between gap-3 border-t border-line pt-2.5">
               <dt className="font-medium text-ink">{tc("total")}</dt>
-              <dd className="text-sm font-semibold text-brand">{f.currency(selection.total)}</dd>
+              <dd className="text-sm font-semibold text-brand">{f.currency(grandTotal)}</dd>
             </div>
           </dl>
         </div>
-        <p className="mt-3 flex items-center gap-2 text-xs text-warn">
-          <Info aria-hidden className="size-4 shrink-0" strokeWidth={1.75} />
+        <p className="mt-3 flex items-center gap-2 text-xs text-ink">
+          <Info aria-hidden className="size-4 shrink-0 text-subtle" strokeWidth={1.75} />
           {t("holdConfirmNote")}
         </p>
       </ConfirmDialog>

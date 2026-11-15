@@ -6,12 +6,13 @@ import { cn } from "@/lib/cn";
 import { toMinutes } from "@/lib/dates";
 import type { PriceBand, Schedule, SlotState } from "@/shared/types";
 
-export type Range = { courtId: string; start: string; end: string } | null;
+export type SlotRange = { courtId: string; start: string; end: string };
+export type Range = SlotRange | null;
 
 type Props = {
   schedule: Schedule;
   band: PriceBand;
-  range: Range;
+  ranges: SlotRange[];
   onPick: (courtId: string, start: string, end: string, status: SlotState) => void;
 };
 
@@ -24,7 +25,7 @@ const look: Record<SlotState | "selected", string> = {
 };
 
 /** Courts × 30-minute slots for the chosen price band (UC_2.1 step 3). */
-export function CourtGrid({ schedule, band, range, onPick }: Props) {
+export function CourtGrid({ schedule, band, ranges, onPick }: Props) {
   const t = useTranslations("booking");
   const ts = useTranslations("status");
   const from = toMinutes(band.start);
@@ -32,7 +33,7 @@ export function CourtGrid({ schedule, band, range, onPick }: Props) {
   const inBand = (start: string) => toMinutes(start) >= from && toMinutes(start) < to;
   const columns = schedule.courts[0]?.slots.filter((slot) => inBand(slot.start)) ?? [];
   const isSelected = (courtId: string, start: string) =>
-    !!range && range.courtId === courtId && toMinutes(start) >= toMinutes(range.start) && toMinutes(start) < toMinutes(range.end);
+    ranges.some((r) => r.courtId === courtId && toMinutes(start) >= toMinutes(r.start) && toMinutes(start) < toMinutes(r.end));
   const labels = { free: ts("slotFree"), booked: ts("slotBooked"), maintenance: ts("slotMaintenance"), past: ts("slotPast"), selected: ts("slotSelected") };
   const icons = { free: Plus, booked: Lock, past: Lock, maintenance: Wrench, selected: Check };
 
