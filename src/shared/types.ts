@@ -43,11 +43,10 @@ export type Pricing = {
   courts: Array<{ id: string; name: string; prices: Record<string, { weekday: number; weekend: number }> }>;
 };
 
+export type HoldItem = { courtId: string; start: string; end: string };
 export type HoldInput = {
-  courtId: string;
   date: string;
-  start: string;
-  end: string;
+  items: HoldItem[];
   fullName: string;
   phone: string;
   email: string;
@@ -85,6 +84,8 @@ export type BookingSummary = {
   holdExpiresAt?: string | null;
   checkedInAt?: string | null;
   affectedReason?: ClosureReason | null;
+  closureStart?: string | null;
+  closureEnd?: string | null;
   /** Lựa chọn của khách khi sân bị đóng: Dời lịch | Hoàn tiền. */
   closureChoice?: "Dời lịch" | "Hoàn tiền" | null;
 };

@@ -4,7 +4,8 @@ import { body, fail, handler, ok, requireShift, requireUser } from "@/server/lib
 import type { Hold } from "@/shared/types";
 
 const schema = z.object({
-  courtId: z.string(), date: z.string(), start: z.string(), end: z.string(),
+  date: z.string(),
+  items: z.array(z.object({ courtId: z.string(), start: z.string(), end: z.string() })).min(1).max(10),
   fullName: z.string().trim().min(1), phone: z.string().regex(/^0\d{9}$/),
   email: z.string().email().or(z.literal("")), note: z.string().max(255).default(""),
 });
@@ -27,7 +28,7 @@ export async function POST(req: Request) {
     }
     const { data: res, error } = await admin().rpc("fn_giu_cho", {
       p_user, p_ten: input.fullName, p_sdt: input.phone, p_email: input.email || null,
-      p_items: [{ ma_san: input.courtId, ngay: input.date, gio_bd: input.start, gio_kt: input.end }],
+      p_items: input.items.map((it) => ({ ma_san: it.courtId, ngay: input.date, gio_bd: it.start, gio_kt: it.end })),
       p_nguoi_tao, p_ghi_chu: input.note || null,
     });
     if (error) throw error;

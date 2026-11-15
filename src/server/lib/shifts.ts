@@ -25,8 +25,10 @@ export async function shiftToday(ma_nguoi_dung: string): Promise<ShiftToday> {
   }
   const shifts = SHIFT_DEFS.map((def) => {
     const row = (rows ?? []).find((r) => r.ten_ca === def.name);
-    const inHours = def.start <= now.slice(0, 5) && now.slice(0, 5) < def.end;
-    return { id: row?.ma_ca_lam ?? null, name: def.name, start: def.start, end: def.end, assigned: !!row, inHours };
+    const start = row ? (row.gio_bat_dau_ca as string).slice(0, 5) : def.start;
+    const end = row ? (row.gio_ket_thuc_ca as string).slice(0, 5) : def.end;
+    const inHours = start <= now.slice(0, 5) && now.slice(0, 5) < end;
+    return { id: row?.ma_ca_lam ?? null, name: def.name, start, end, assigned: !!row, inHours };
   });
   return { date, checkedIn, shifts };
 }

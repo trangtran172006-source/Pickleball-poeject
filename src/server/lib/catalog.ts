@@ -3,6 +3,7 @@ import type { Product } from "@/shared/types";
 
 export async function signedProductUrl(path: string | null): Promise<string | null> {
   if (!path) return null;
+  if (path.startsWith("/") || path.startsWith("http")) return path;
   const { data } = await admin().storage.from("products").createSignedUrl(path, 3600);
   return data?.signedUrl ?? null;
 }

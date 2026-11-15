@@ -82,14 +82,24 @@ export async function staffHome(ma: string, shift: { name: string; start: string
   const busyNow = new Set(inUse.map((b) => b.courtId));
   const courtsReady = (san ?? []).filter((s) => s.trang_thai === "Đang hoạt động" && !busyNow.has(s.ma_san)).map((s) => s.ten_san);
 
-  // tasks for this shift
-  let tasks: ShiftTask[] = [];
-  if (shift) {
-    const { data: defs } = await admin().from("viec_trong_ca").select("*").eq("ten_ca", shift.name).order("gio_thuc_hien");
-    const { data: done } = await admin().from("viec_trong_ca_hoan_thanh").select("ma_viec,hoan_thanh_luc").eq("ma_ca_lam", shift.ma_ca_lam);
-    const doneMap = new Map((done ?? []).map((d) => [d.ma_viec, d.hoan_thanh_luc]));
-    tasks = (defs ?? []).map((v) => ({ id: v.ma_viec, name: v.ten_viec, time: v.gio_thuc_hien ? (v.gio_thuc_hien as string).slice(0, 5) : null, note: v.mo_ta ?? null, done: doneMap.has(v.ma_viec), doneAt: doneMap.get(v.ma_viec) ?? null }));
-  }
+  // tasks for this shift (fallback to canonical tasks so dashboard always shows shift checklist)
+  const shiftName = shift?.name ?? "Ca sáng";
+  const { data: defs } = await admin().from("viec_trong_ca").select("*").eq("ten_ca", shiftName).order("gio_thuc_hien");
+  const { data: fallbackDefs } = (defs ?? []).length > 0
+    ? { data: defs }
+    : await admin().from("viec_trong_ca").select("*").eq("ten_ca", "Ca sáng").order("gio_thuc_hien");
+  const { data: done } = shift
+    ? await admin().from("viec_trong_ca_hoan_thanh").select("ma_viec,hoan_thanh_luc").eq("ma_ca_lam", shift.ma_ca_lam)
+    : { data: [] as Array<{ ma_viec: string; hoan_thanh_luc: string }> };
+  const doneMap = new Map((done ?? []).map((d) => [d.ma_viec, d.hoan_thanh_luc]));
+  const tasks: ShiftTask[] = (fallbackDefs ?? []).map((v) => ({
+    id: v.ma_viec,
+    name: v.ten_viec,
+    time: v.gio_thuc_hien ? (v.gio_thuc_hien as string).slice(0, 5) : null,
+    note: v.mo_ta ?? null,
+    done: doneMap.has(v.ma_viec),
+    doneAt: doneMap.get(v.ma_viec) ?? null,
+  }));
 
   const queue: Array<{ booking: BookingSummary; state: QueueState }> = [
     ...awaitingPayment.map((b) => ({ booking: b, state: "awaitingPayment" as QueueState })),

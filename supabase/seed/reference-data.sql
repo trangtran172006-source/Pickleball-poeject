@@ -30,24 +30,37 @@ insert into san_gia_thue(ma_san,ma_gia) values
   ('SAN02','G_S2_KG02_WE'),('SAN02','G_S2_KG03_WD'),('SAN02','G_S2_KG03_WE')
 on conflict do nothing;
 
--- Hàng hóa & dịch vụ mẫu
-insert into hang_hoa_dich_vu(ma_hhdv,ten_hhdv,loai,nhom,don_vi,gia,mo_ta,ton_kho) values
-  ('HH0001','Nước suối Aquafina 500ml','Hàng hóa','Đồ uống','chai',10000,'Nước suối tinh khiết',200),
-  ('HH0002','Nước tăng lực Revive','Hàng hóa','Đồ uống','chai',15000,'Bù khoáng',120),
-  ('HH0003','Khăn thể thao','Hàng hóa','Phụ kiện','cái',35000,'Khăn cotton',60),
-  ('DV0001','Thuê vợt Pickleball','Dịch vụ',null,'lượt',30000,'Vợt tiêu chuẩn',null),
-  ('DV0002','Thuê bóng Pickleball','Dịch vụ',null,'lượt',10000,'Bóng thi đấu',null)
-on conflict (ma_hhdv) do nothing;
+-- Hàng hóa & dịch vụ mẫu (theo đặc tả Figma UI_21, UI_22, UI_47)
+insert into hang_hoa_dich_vu(ma_hhdv,ten_hhdv,loai,nhom,don_vi,gia,mo_ta,anh_minh_hoa,ton_kho) values
+  ('HH0001','Nước suối Aquafina','Hàng hóa','Đồ uống','Chai',15000,'Chai 500 ml','/images/products/aquafina.png',200),
+  ('HH0002','Sting đỏ','Hàng hóa','Đồ uống','Chai',25000,'Chai 500 ml','/images/products/sting.png',120),
+  ('HH0003','Bóng pickleball','Hàng hóa','Phụ kiện','Quả',20000,'Bóng ngoài trời · 40 lỗ','/images/products/ball.png',100),
+  ('HH0004','Quấn cán vợt','Hàng hóa','Phụ kiện','Chiếc',30000,'Loại chống trượt · 1 chiếc','/images/products/grip.png',80),
+  ('DV0001','Thuê vợt pickleball','Dịch vụ',null,'vợt / buổi',30000,'Vợt tiêu chuẩn, phù hợp mọi trình độ','/images/products/racket.png',null),
+  ('DV0002','Khăn thể thao','Dịch vụ',null,'khăn / buổi',10000,'Khăn sạch, sử dụng trong suốt buổi chơi','/images/products/towel.png',null),
+  ('DV0003','Huấn luyện viên','Dịch vụ',null,'giờ',200000,'Hướng dẫn kỹ thuật cơ bản và nâng cao','/images/products/coach.png',null)
+on conflict (ma_hhdv) do update set
+  ten_hhdv = excluded.ten_hhdv,
+  loai = excluded.loai,
+  nhom = excluded.nhom,
+  don_vi = excluded.don_vi,
+  gia = excluded.gia,
+  mo_ta = excluded.mo_ta,
+  anh_minh_hoa = excluded.anh_minh_hoa,
+  ton_kho = excluded.ton_kho,
+  da_xoa = false;
 
--- Việc trong ca (mẫu theo từng ca)
+-- Việc trong ca (theo đặc tả Figma UI_20)
 insert into viec_trong_ca(ma_viec,ten_viec,gio_thuc_hien,mo_ta,ten_ca) values
-  ('VC0001','Kiểm tra lưới và mặt sân','05:15','Đảm bảo lưới căng, mặt sân sạch','Ca sáng'),
-  ('VC0002','Mở cửa và bật đèn khu vực','05:10',null,'Ca sáng'),
-  ('VC0003','Kiểm kê hàng hóa đầu ca','12:10','Đối chiếu tồn kho','Ca chiều'),
-  ('VC0004','Vệ sinh khu vực nghỉ','12:30',null,'Ca chiều'),
-  ('VC0005','Tổng vệ sinh cuối ngày','21:40','Dọn sân, tắt đèn','Ca tối'),
-  ('VC0006','Chốt doanh thu tiền mặt','21:50',null,'Ca tối')
-on conflict (ma_viec) do nothing;
+  ('VC0001','Kiểm tra mặt sân và lưới đầu ca','05:15','Đảm bảo mặt sân sạch và lưới căng tiêu chuẩn','Ca sáng'),
+  ('VC0002','Bổ sung nước uống tại quầy hàng hóa','06:00','Kiểm tra và làm đầy tủ mát đồ uống','Ca sáng'),
+  ('VC0003','Đối chiếu 1 đơn chuyển khoản chờ xác nhận','08:00','Đơn của Lê Hoàng Nam · 220.000đ','Ca sáng'),
+  ('VC0004','Chuẩn bị vợt thuê cho khung giờ 18:00','17:30','4 cây vợt tiêu chuẩn · Sân 01, Sân 02','Ca sáng')
+on conflict (ma_viec) do update set
+  ten_viec = excluded.ten_viec,
+  gio_thuc_hien = excluded.gio_thuc_hien,
+  mo_ta = excluded.mo_ta,
+  ten_ca = excluded.ten_ca;
 
 -- Cấu hình tài khoản nhận tiền (giá trị thật seed từ env trong seed.ts; dòng mẫu cho môi trường kiểm thử)
 insert into cau_hinh(id,ngan_hang,ma_bin,chu_tai_khoan,so_tai_khoan,hotline) values

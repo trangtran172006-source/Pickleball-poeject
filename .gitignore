@@ -46,3 +46,5 @@ next-env.d.ts
 # local build packaging
 .preview/
 _archive_phase4/
+.mcp.json
+*.pdf
