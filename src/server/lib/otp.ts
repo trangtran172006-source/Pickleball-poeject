@@ -32,9 +32,24 @@ export async function verifyOtp(email: string, purpose: OtpPurpose, code: string
   if (new Date(data.het_han_luc) < new Date()) throw fail("OTP_EXPIRED", 400);
   if (data.so_lan_sai >= 5) throw fail("OTP_TOO_MANY", 400);
   if (data.ma_otp !== hash(code)) {
-    const fails = data.so_lan_sai + 1;
-    await admin().from("otp").update({ so_lan_sai: fails, da_su_dung: fails >= 5 }).eq("ma_otp_id", data.ma_otp_id);
-    throw fail(fails >= 5 ? "OTP_TOO_MANY" : "OTP_WRONG", 400);
+    // Also accept Supabase Auth's built-in 6-digit email OTP if fallback delivery was used
+    let supabaseValid = false;
+    try {
+      const { error: otpErr } = await admin().auth.verifyOtp({ email, token: code, type: "email" });
+      if (!otpErr) supabaseValid = true;
+      else {
+        const { error: recErr } = await admin().auth.verifyOtp({ email, token: code, type: "recovery" });
+        if (!recErr) supabaseValid = true;
+      }
+    } catch {
+      supabaseValid = false;
+    }
+
+    if (!supabaseValid) {
+      const fails = data.so_lan_sai + 1;
+      await admin().from("otp").update({ so_lan_sai: fails, da_su_dung: fails >= 5 }).eq("ma_otp_id", data.ma_otp_id);
+      throw fail(fails >= 5 ? "OTP_TOO_MANY" : "OTP_WRONG", 400);
+    }
   }
   if (purpose === "reset") {
     const token = shortId("RT") + Math.random().toString(36).slice(2, 10);

@@ -16,8 +16,9 @@ export async function POST(req: Request) {
     const email = await consumeResetToken(input.resetToken);
     const { data: nd } = await admin().from("nguoi_dung").select("auth_user_id").eq("email", email).maybeSingle();
     if (!nd?.auth_user_id) throw fail("ACCOUNT_NOT_FOUND", 404);
-    const { error } = await admin().auth.admin.updateUserById(nd.auth_user_id, { password: input.password });
+    const { error } = await admin().auth.admin.updateUserById(nd.auth_user_id, { password: input.password, email_confirm: true });
     if (error) throw error;
+    await admin().from("nguoi_dung").update({ da_xac_thuc: true }).eq("email", email);
     return noContent();
   });
 }
