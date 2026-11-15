@@ -17,32 +17,39 @@ export function CustomerDetail({ base, id }: { base: string; id: string }) {
   const tc = useTranslations("common");
   const customer = useQuery({ queryKey: ["customer", id], queryFn: () => customersApi.detail(id) });
   const data = customer.data;
-  const status = data && <Badge tone={data.online ? "green" : "gray"}>{data.online ? tc("online") : tc("offline")}</Badge>;
+  const status = data && (
+    <Badge tone={data.online ? "green" : "gray"} className="gap-1.5 px-3 py-1.5">
+      <span aria-hidden className="size-1.5 rounded-full bg-current" />
+      {data.online ? tc("online") : tc("offline")}
+    </Badge>
+  );
 
   return (
     <div>
       <PageTitle title={t("detailTitle")} />
-      <Link href={`${base}/customers`} className="mb-4 inline-flex items-center gap-2 text-xs font-medium text-brand hover:underline">
-        <ArrowLeft aria-hidden className="size-4" />
-        {t("backToResults")}
-      </Link>
+      <Card className="mb-4 px-5 py-3.5">
+        <Link href={`${base}/customers`} className="inline-flex items-center gap-2 text-xs font-medium text-brand hover:underline">
+          <ArrowLeft aria-hidden className="size-4" />
+          {t("backToResults")}
+        </Link>
+      </Card>
       <Card>
         {customer.isPending ? (
           <SkeletonRows rows={4} />
         ) : customer.isError || !data ? (
           customer.error instanceof ApiError && customer.error.status === 404 ? <EmptyState title={t("notFound")} /> : <ErrorState error={customer.error} onRetry={() => customer.refetch()} />
         ) : (
-          <>
-            <div className="flex items-center gap-4 px-5 py-5 sm:px-6">
-              <Avatar name={data.fullName} src={data.avatarUrl} className="size-14 text-lg" />
-              <div>
+          <div className="p-5 sm:p-6">
+            <div className="flex items-center justify-between gap-4 pb-6">
+              <div className="flex items-center gap-4">
+                <Avatar name={data.fullName} src={data.avatarUrl} className="size-14 text-lg" />
                 <p className="text-lg font-semibold text-ink" data-customer-name>{data.fullName}</p>
-                <div className="mt-1.5">{status}</div>
               </div>
+              {status}
             </div>
-            <div className="border-t border-line px-5 py-5 sm:px-6">
-              <h2 className="text-[13px] font-semibold text-ink">{t("info")}</h2>
-              <dl className="mt-4 grid gap-5 sm:grid-cols-2">
+            <div className="border-t border-line pt-6">
+              <h2 className="text-[15px] font-semibold text-ink">{t("info")}</h2>
+              <dl className="mt-4 grid gap-4 sm:grid-cols-2">
                 {(
                   [
                     [User, t("colName"), data.fullName],
@@ -51,19 +58,17 @@ export function CustomerDetail({ base, id }: { base: string; id: string }) {
                     [CircleUser, t("colAccount"), status],
                   ] as const
                 ).map(([Icon, label, value]) => (
-                  <div key={label} className="flex items-start gap-3">
-                    <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand">
+                  <div key={label} className="rounded-xl bg-[#f5f6f5] px-5 py-4">
+                    <dt className="flex items-center gap-2 text-xs text-subtle">
                       <Icon aria-hidden className="size-4" strokeWidth={1.5} />
-                    </span>
-                    <div className="min-w-0">
-                      <dt className="text-[10px] text-subtle">{label}</dt>
-                      <dd className="mt-1 text-[13px] font-medium text-ink [overflow-wrap:anywhere]">{value}</dd>
-                    </div>
+                      {label}
+                    </dt>
+                    <dd className="mt-2.5 text-sm font-semibold text-ink [overflow-wrap:anywhere]">{value}</dd>
                   </div>
                 ))}
               </dl>
             </div>
-          </>
+          </div>
         )}
       </Card>
     </div>
