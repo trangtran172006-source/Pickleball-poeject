@@ -63,13 +63,15 @@ select d.ma_dat_san, d.ngay_dat, d.ngay_choi, d.tong_gio, d.tong_tien, d.trang_t
 -- 3. Cập nhật hàm xác nhận thanh toán để lưu đủ thông tin sân & khung giờ vào thông báo (C.Customer.3)
 create or replace function fn_xac_nhan_thanh_toan(p_ma_dds varchar, p_minh_chung text)
 returns void as $$
-declare v_user varchar; v_san varchar; v_ngay text; v_bd text; v_kt text;
+declare v_user varchar; v_san varchar; v_ngay text; v_bd text; v_kt text; v_tt varchar;
 begin
+  select ma_nguoi_dung, trang_thai_dat_san into v_user, v_tt from don_dat_san where ma_dat_san=p_ma_dds;
+  if not found then raise exception 'NOT_FOUND' using errcode='P0001'; end if;
+  if v_tt = 'Đã hủy' then raise exception 'HOLD_EXPIRED' using errcode='P0001'; end if;
+  update lich_dat_tam_khoa set trang_thai='Đã xác nhận' where ma_dat_san=p_ma_dds and trang_thai='Đang giữ';
+  update don_dat_san set trang_thai_dat_san='Đã xác nhận' where ma_dat_san=p_ma_dds;
   update thanh_toan set minh_chung=p_minh_chung, trang_thai_thanh_toan='Đã thanh toán',
          thoi_gian_thanh_toan=now() where ma_dat_san=p_ma_dds;
-  update don_dat_san set trang_thai_dat_san='Đã xác nhận' where ma_dat_san=p_ma_dds
-         returning ma_nguoi_dung into v_user;
-  update lich_dat_tam_khoa set trang_thai='Đã chuyển đổi' where ma_dat_san=p_ma_dds and trang_thai='Đang giữ';
   insert into lich_su_thay_doi(ma_lich_su,ma_dat_san,trang_thai,nguoi_thuc_hien,ly_do)
     values ('LS'||lpad(nextval('seq_ls')::text,8,'0'),p_ma_dds,'Đã xác nhận',v_user,'Tải minh chứng, tự xác nhận');
   if v_user is not null then

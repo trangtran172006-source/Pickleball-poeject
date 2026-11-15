@@ -20,7 +20,7 @@ export function PublicHome() {
 
   return (
     <div className="min-h-dvh bg-page">
-      <header className="sticky top-0 z-30 border-b border-line bg-white/95 backdrop-blur">
+      <header className="sticky top-0 z-30 border-b border-line bg-white">
         <div className="mx-auto flex max-w-[1120px] items-center gap-3 px-4 py-3 lg:px-6">
           <Brand href="/" name={tc("appName")} />
           <div className="ml-auto flex items-center gap-2 sm:gap-3">
@@ -36,7 +36,7 @@ export function PublicHome() {
       </header>
 
       <section className="relative overflow-hidden bg-[#1A6C2E] bg-[url('/images/auth-bg.jpg')] bg-cover bg-center">
-        <div className="absolute inset-0 bg-[#0d3b1a]/60" />
+        <div className="absolute inset-0 bg-[#0d3b1a]/35" />
         <div className="relative mx-auto max-w-[1120px] px-4 py-16 text-white lg:px-6 lg:py-24">
           <p className="text-sm font-medium text-white/85">{tc("clubName")}</p>
           <h1 className="mt-2 max-w-2xl text-3xl font-semibold leading-tight sm:text-[40px]">{t("publicHeroTitle")}</h1>

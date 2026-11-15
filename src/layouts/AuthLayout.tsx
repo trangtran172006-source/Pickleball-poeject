@@ -16,13 +16,14 @@ type Props = {
  */
 export function AuthLayout({ title, subtitle, compact = false, children }: Props) {
   return (
-    <div className="relative flex min-h-dvh items-center justify-center bg-[#3f9345] bg-[url('/images/auth-bg.jpg')] bg-cover bg-[position:12%_center] px-4 py-10 sm:bg-center sm:py-14">
-      <div className="absolute right-4 top-4 sm:right-6 sm:top-6">
+    <div className="relative flex min-h-dvh items-center justify-center bg-[#2f7a38] bg-[url('/images/auth-bg.jpg')] bg-cover bg-center px-4 py-10 sm:py-14">
+      <div className="pointer-events-none absolute inset-0 bg-[#10491d]/25" />
+      <div className="absolute right-4 top-4 z-10 sm:right-6 sm:top-6">
         <LanguageSwitcher tone="dark" />
       </div>
       <main
         className={cn(
-          "w-full max-w-[654px] rounded-[20px] bg-white p-6 shadow-sm sm:p-10",
+          "relative z-10 w-full max-w-[654px] rounded-[20px] bg-white p-6 sm:p-10",
           !compact && "sm:min-h-[610px]",
         )}
       >
