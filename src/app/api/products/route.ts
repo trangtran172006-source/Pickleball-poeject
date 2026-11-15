@@ -8,7 +8,7 @@ export async function GET(req: Request) {
   return handler(async () => {
     await requireRole(["staff", "owner"]);
     const q = new URL(req.url).searchParams.get("q")?.trim();
-    let query = admin().from("hang_hoa_dich_vu").select("*").eq("da_xoa", false).order("ten_hhdv");
+    let query = admin().from("hang_hoa_dich_vu").select("*").eq("da_xoa", false).order("ma_hhdv");
     if (q) query = query.ilike("ten_hhdv", `%${q}%`);
     const { data } = await query;
     return ok(await Promise.all((data ?? []).map(productFromRow)));

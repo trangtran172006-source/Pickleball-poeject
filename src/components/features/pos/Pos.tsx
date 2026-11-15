@@ -32,10 +32,10 @@ export function Pos() {
   const [group, setGroup] = useState<ProductGroup | "all">("all");
   const [keyword, setKeyword] = useState("");
   const [cart, setCart] = useState<Record<string, number>>({});
-  const [method, setMethod] = useState<OrderMethod>("Tiền mặt");
+  const method: OrderMethod = "Tiền mặt";
   const [created, setCreated] = useState(false);
   const products = useQuery({ queryKey: ["products"], queryFn: () => productsApi.list() });
-  const all = useMemo(() => products.data ?? [], [products.data]);
+  const all = useMemo(() => [...(products.data ?? [])].sort((a, b) => a.id.localeCompare(b.id)), [products.data]);
 
   const visible = all.filter(
     (item) =>
@@ -93,7 +93,11 @@ export function Pos() {
               >
                 <item.icon aria-hidden className="size-4" strokeWidth={1.75} />
                 {item.label}
-                {item.count > 0 && <span className="flex size-6 items-center justify-center rounded-full bg-brand text-[11px] font-semibold text-white">{item.count}</span>}
+                {item.count > 0 && (
+                  <span className={cn("flex h-5 min-w-5 items-center justify-center rounded-md px-1.5 text-[11px] font-semibold", tab === item.key ? "bg-brand text-white" : "bg-brand-soft text-brand")}>
+                    {item.count}
+                  </span>
+                )}
               </button>
             ))}
           </div>
@@ -211,10 +215,6 @@ export function Pos() {
                     <tbody>
                       {visible.map((item) => {
                         const quantity = cart[item.id] ?? 0;
-                        const descParts = [
-                          item.description && item.description !== item.unit ? `${item.description} · ${item.unit}` : item.unit,
-                          item.stock !== null ? t("stockLeft", { count: item.stock }) : null,
-                        ].filter(Boolean);
                         return (
                           <tr key={item.id} data-product={item.id} className="border-t border-line">
                             <td className="px-4 py-3.5">
@@ -229,7 +229,7 @@ export function Pos() {
                                 </span>
                                 <span className="min-w-0">
                                   <span className="block text-[13px] font-medium text-ink">{item.name}</span>
-                                  <span className="mt-1 block text-[11px] text-muted">{descParts.join(" · ")}</span>
+                                  <span className="mt-1 block text-[11px] text-muted">{item.description ?? item.unit}</span>
                                 </span>
                               </div>
                             </td>
@@ -259,7 +259,7 @@ export function Pos() {
             <div className="mt-5 flex items-end justify-between gap-3 border-t border-line pt-4 text-xs text-muted">
               <div>
                 <span>{tab === "goods" ? t("chosenGoods", { kinds: shown.length, count: count(shown) }) : t("chosenServices", { kinds: shown.length, count: count(shown) })}</span>
-                {shown.length > 0 && (
+                {tab === "services" && shown.length > 0 && (
                   <p className="mt-1 text-[11px] text-subtle">
                     {shown.map((line) => `${line.quantity} ${line.item.name.toLocaleLowerCase()} × ${f.currency(line.item.price)}`).join(" + ")}
                   </p>
@@ -271,6 +271,12 @@ export function Pos() {
               </div>
             </div>
           </Card>
+
+          {created && <Banner tone="success" title={t("created")} />}
+          {order.isError && <Banner tone="error" title={errorText(order.error, "errors.orderFailed")} />}
+          <Button className="h-[46px] self-end px-6 text-sm" disabled={lines.length === 0} loading={order.isPending} onClick={() => order.mutate()} data-create-order>
+            {t("create")}
+          </Button>
         </div>
 
         <div className="flex flex-col gap-4">
@@ -289,7 +295,9 @@ export function Pos() {
                     <span className="text-muted">{t("goodsLine", { count: count(goods) })}</span>
                     <span className="font-semibold text-ink">{f.currency(money(goods))}</span>
                   </p>
-                  <p className="mt-1.5 text-[11px] text-subtle">{goods.map((line) => `${line.quantity} ${line.item.name}`).join(" · ")}</p>
+                  <p className="mt-1.5 text-[11px] text-subtle">
+                    {goods.map((line) => `${line.quantity} ${line.item.name.toLocaleLowerCase()} × ${f.currency(line.item.price)}`).join(" · ")}
+                  </p>
                 </div>
               )}
               {services.length > 0 && (
@@ -298,25 +306,11 @@ export function Pos() {
                     <span className="text-muted">{t("servicesLine", { count: count(services) })}</span>
                     <span className="font-semibold text-ink">{f.currency(money(services))}</span>
                   </p>
-                  <p className="mt-1.5 text-[11px] text-subtle">{services.map((line) => `${line.quantity} ${line.item.name}`).join(" · ")}</p>
+                  <p className="mt-1.5 text-[11px] text-subtle">
+                    {services.map((line) => `${line.quantity} ${line.item.name.toLocaleLowerCase()} × ${f.currency(line.item.price)}`).join(" · ")}
+                  </p>
                 </div>
               )}
-            </div>
-            <div className="mt-5 border-t border-line pt-5" role="radiogroup" aria-label={t("payMethod")}>
-              <p className="mb-2.5 text-xs text-muted">{t("payMethod")}</p>
-              <div className="grid grid-cols-2 gap-2">
-                {(
-                  [
-                    ["Tiền mặt", t("cash")],
-                    ["Chuyển khoản", t("transfer")],
-                  ] as const
-                ).map(([value, label]) => (
-                  <label key={value} className={cn("flex h-9 cursor-pointer items-center justify-center rounded-lg border text-xs", method === value ? "border-brand bg-brand-soft font-semibold text-brand" : "border-line text-body")}>
-                    <input type="radio" name="method" value={value} checked={method === value} onChange={() => setMethod(value)} className="sr-only" />
-                    {label}
-                  </label>
-                ))}
-              </div>
             </div>
             <div className="mt-5 flex items-center justify-between gap-3 border-t border-line pt-5">
               <span className="text-[13px] font-medium text-ink">{tc("total")}</span>
@@ -326,11 +320,6 @@ export function Pos() {
             </div>
             <p className="mt-4 text-[10px] text-subtle">{t("taxIncluded")}</p>
           </Card>
-          {created && <Banner tone="success" title={t("created")} />}
-          {order.isError && <Banner tone="error" title={errorText(order.error, "errors.orderFailed")} />}
-          <Button className="h-[46px] self-end px-6 text-sm" disabled={lines.length === 0} loading={order.isPending} onClick={() => order.mutate()} data-create-order>
-            {t("create")}
-          </Button>
         </div>
       </div>
     </div>
