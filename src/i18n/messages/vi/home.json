@@ -32,6 +32,7 @@
   "detail": "Chi tiết",
   "nothingToProcess": "Không có lượt đặt nào cần xử lý",
   "tasksTitle": "Việc cần làm trong ca",
+  "taskDoneAt": "Hoàn thành lúc {time}",
   "noTasks": "Chưa có việc nào cho ca này",
   "ownerGreeting": "Xin chào, {name}!",
   "ownerSub": "Cùng theo dõi hoạt động của Picklehead Booking hôm nay.",

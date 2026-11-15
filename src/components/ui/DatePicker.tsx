@@ -173,3 +173,80 @@ export function DatePicker({ id, value, onChange, placeholder, min, max, clearab
     </div>
   );
 }
+
+type RangePickerProps = {
+  from: string | null;
+  to: string | null;
+  onChange: (from: string | null, to: string | null) => void;
+  placeholder?: string;
+  className?: string;
+};
+
+/** Single-box date range filter ("04/11/2026 – 07/11/2026") per UI_42 Figma. */
+export function DateRangePicker({ from, to, onChange, placeholder, className }: RangePickerProps) {
+  const t = useTranslations("common");
+  const f = useFormat();
+  const { open, setOpen, ref } = usePopover();
+  const [step, setStep] = useState<"from" | "to">("from");
+  const label =
+    from && to
+      ? `${f.date(from)} – ${f.date(to)}`
+      : from
+        ? `${f.date(from)} – …`
+        : to
+          ? `… – ${f.date(to)}`
+          : (placeholder ?? t("allTime"));
+
+  return (
+    <div ref={ref} className={cn("relative", className)}>
+      <button
+        type="button"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        onClick={() => {
+          setStep("from");
+          setOpen((current) => !current);
+        }}
+        className={cn(
+          "flex h-10 w-full items-center gap-2 rounded-lg border border-line bg-white px-3 text-left text-[13px] outline-none focus:border-brand focus:ring-2 focus:ring-brand/15",
+          from || to ? "text-ink" : "text-subtle/80",
+        )}
+      >
+        <CalendarDays aria-hidden className="size-4 shrink-0 text-body" strokeWidth={1.75} />
+        <span className="truncate">{label}</span>
+      </button>
+      {open && (
+        <div role="dialog" className="absolute left-0 top-full z-40 mt-1 rounded-xl border border-line bg-white shadow-xl">
+          <Calendar
+            value={step === "from" ? from : to}
+            min={step === "to" && from ? from : undefined}
+            onSelect={(iso) => {
+              if (step === "from") {
+                const nextTo = to && to >= iso ? to : iso;
+                onChange(iso, nextTo);
+                setStep("to");
+              } else {
+                onChange(from ?? iso, iso);
+                setOpen(false);
+              }
+            }}
+          />
+          {(from || to) && (
+            <div className="border-t border-line p-2 text-center">
+              <button
+                type="button"
+                className="text-xs font-medium text-muted hover:text-ink"
+                onClick={() => {
+                  onChange(null, null);
+                  setOpen(false);
+                }}
+              >
+                {placeholder ?? t("allTime")}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

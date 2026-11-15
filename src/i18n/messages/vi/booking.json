@@ -39,6 +39,8 @@
   "phoneShort": "Điện thoại",
   "contactEmail": "Email liên hệ",
   "method": "Phương thức thanh toán",
+  "doneSentNotice": "Xác nhận đã được gửi đến {email}.",
+  "doneSavedNotice": "Thông tin xác nhận đã được lưu trên hệ thống.",
   "arriveNotice": "Vui lòng đến trước 15 phút và cung cấp mã đặt sân tại quầy để nhận sân, hàng hóa và dịch vụ.",
   "goHome": "Về trang chủ",
   "viewBookings": "Xem lịch đặt sân",

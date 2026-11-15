@@ -39,6 +39,8 @@
   "phoneShort": "Phone",
   "contactEmail": "Contact email",
   "method": "Payment method",
+  "doneSentNotice": "Confirmation has been sent to {email}.",
+  "doneSavedNotice": "Your booking confirmation has been recorded.",
   "arriveNotice": "Please arrive 15 minutes early and show your booking code at the counter.",
   "goHome": "Back to home",
   "viewBookings": "View my bookings",

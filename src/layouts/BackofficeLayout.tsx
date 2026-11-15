@@ -18,7 +18,7 @@ import { useFormat } from "@/i18n/useFormat";
 import type { Role } from "@/shared/types";
 
 type NavKey = Parameters<ReturnType<typeof useTranslations<"nav">>>[0];
-export type MenuLeaf = { key: NavKey; href: string; exact?: boolean; match?: string[] };
+export type MenuLeaf = { key: NavKey; href: string; icon?: LucideIcon; exact?: boolean; match?: string[] };
 export type MenuItem = { key: NavKey; icon: LucideIcon; href?: string; exact?: boolean; match?: string[]; children?: MenuLeaf[] };
 
 type Props = { role: Extract<Role, "staff" | "owner">; base: string; menu: MenuItem[]; children: ReactNode };
@@ -84,9 +84,13 @@ export function BackofficeLayout({ role, base, menu, children }: Props) {
                     href={child.href}
                     aria-current={isActive(child) ? "page" : undefined}
                     onClick={() => setDrawer(false)}
-                    className={cn("rounded-lg px-3 py-2 text-xs", isActive(child) ? "bg-brand-soft font-semibold text-brand" : "text-body hover:text-brand")}
+                    className={cn(
+                      "flex items-center gap-2 rounded-lg px-3 py-2 text-xs",
+                      isActive(child) ? "bg-brand-soft font-semibold text-brand" : "text-body hover:text-brand",
+                    )}
                   >
-                    {t(child.key)}
+                    {child.icon && <child.icon aria-hidden className="size-3.5 shrink-0" strokeWidth={1.75} />}
+                    <span>{t(child.key)}</span>
                   </Link>
                 ))}
               </div>

@@ -45,7 +45,7 @@
   "note": "Note",
   "hours": "{count, plural, one {# hour} other {# hours}}",
   "minutes": "{count} min",
-  "unitPer30": "VND / 30 min",
+  "unitPer30": "Unit: VND / 30 min",
   "unitVnd": "Unit: VND",
   "showing": "Showing {from}–{to} of {total} {item}",
   "prevPage": "Previous page",

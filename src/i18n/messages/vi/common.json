@@ -45,7 +45,7 @@
   "note": "Ghi chú",
   "hours": "{count} giờ",
   "minutes": "{count} phút",
-  "unitPer30": "đ/30 phút",
+  "unitPer30": "Đơn vị: đ /30 phút",
   "unitVnd": "Đơn vị: VNĐ",
   "showing": "Hiển thị {from}–{to} trên {total} {item}",
   "prevPage": "Trang trước",

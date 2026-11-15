@@ -17,10 +17,11 @@ type ModalProps = {
   widthClass?: string;
   children?: ReactNode;
   footer?: ReactNode;
+  footerBetween?: boolean;
 };
 
 /** Centered dialog over a dimmed page, as in the confirmation frames. */
-export function Modal({ open, onClose, title, subtitle, icon, showClose, widthClass = "max-w-[420px]", children, footer }: ModalProps) {
+export function Modal({ open, onClose, title, subtitle, icon, showClose, widthClass = "max-w-[420px]", children, footer, footerBetween }: ModalProps) {
   const t = useTranslations("common");
   const titleId = useId();
   const panel = useRef<HTMLDivElement>(null);
@@ -66,7 +67,7 @@ export function Modal({ open, onClose, title, subtitle, icon, showClose, widthCl
           )}
         </div>
         {children && <div className="mt-4">{children}</div>}
-        {footer && <div className="mt-5 flex flex-wrap justify-end gap-2.5">{footer}</div>}
+        {footer && <div className={cn("mt-5 flex flex-wrap gap-2.5", footerBetween ? "justify-between" : "justify-end")}>{footer}</div>}
       </div>
     </div>,
     document.body,

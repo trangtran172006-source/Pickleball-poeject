@@ -32,6 +32,7 @@
   "detail": "Details",
   "nothingToProcess": "No bookings to handle",
   "tasksTitle": "Shift tasks",
+  "taskDoneAt": "Completed at {time}",
   "noTasks": "No tasks for this shift",
   "ownerGreeting": "Hello, {name}!",
   "ownerSub": "Here is what is happening at Picklehead Booking today.",
