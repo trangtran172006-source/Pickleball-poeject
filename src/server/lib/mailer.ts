@@ -3,21 +3,25 @@ import { admin } from "./admin";
 import { env } from "./env";
 
 async function resolveSmtpCredentials(): Promise<{ host: string; port: number; user: string; pass: string; from: string } | null> {
-  const host = process.env.SMTP_HOST ?? "smtp.gmail.com";
-  const port = Number(process.env.SMTP_PORT ?? "465");
-  let user = process.env.SMTP_USER?.trim() ?? "";
+  let rawUser = process.env.SMTP_USER?.trim() ?? "";
   let pass = process.env.SMTP_PASS?.replace(/\s+/g, "") ?? "";
 
-  if (!user || !pass) {
+  if (!rawUser || !pass) {
     const { data } = await admin().from("cau_hinh").select("smtp_user,smtp_pass").eq("id", true).maybeSingle();
     if (data?.smtp_user && data?.smtp_pass) {
-      user = String(data.smtp_user).trim();
+      rawUser = String(data.smtp_user).trim();
       pass = String(data.smtp_pass).replace(/\s+/g, "");
     }
   }
 
-  if (!user || !pass) return null;
-  const from = process.env.SMTP_FROM?.trim() || `"Picklehead Booking" <${user}>`;
+  if (!rawUser || !pass) return null;
+  const [userPart, fromPart] = rawUser.split("|").map((s) => s.trim());
+  const user = userPart || rawUser;
+  const isBrevo = pass.startsWith("xsmtpsib-") || user.endsWith("@smtp-brevo.com");
+  const host = process.env.SMTP_HOST ?? (isBrevo ? "smtp-relay.brevo.com" : "smtp.gmail.com");
+  const port = Number(process.env.SMTP_PORT ?? (isBrevo ? "587" : "465"));
+  const senderEmail = fromPart || (user.endsWith("@smtp-brevo.com") ? "trangtran172006@gmail.com" : user);
+  const from = process.env.SMTP_FROM?.trim() || `"Picklehead Booking" <${senderEmail}>`;
   return { host, port, user, pass, from };
 }
 
